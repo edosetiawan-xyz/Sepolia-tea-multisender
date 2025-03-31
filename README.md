@@ -199,11 +199,11 @@ nano .env
 ![Isi file .env](https://img.shields.io/badge/Isi%20file%20.env-228B22?style=for-the-badge&logo=dotenv&logoColor=white)
 
 ```plaintext
-RPC_URL=https://tea.sepolia.g.alchemy.com
+RPC_URL=https://tea-sepolia.g.alchemy.com/public
 PRIVATE_KEYS=your_private_key_here
-BTC_CONTRACT=0xC4341CB2C976306AE9169efb3d8301ea287a3128
-MTT_CONTRACT=0x19dab75B9D703f5a7e176CD08d5A29676aaB94fc
-TDI_CONTRACT=0xb2dD47ea3db0D4FEf8a29727F9E4e21fa47E5102
+BTC_CONTRACT=0x615a02020b4cd1171551e3379491B825315ce77B
+MTT_CONTRACT=0x2b3aBf76D9D2eD4Eb2975D5DBb6981B77DF06E5A
+TDI_CONTRACT=0xE1b512683cb5c3d56D462dB326a6632EeEbb60BB
 TELEGRAM_BOT_TOKEN=your_telegram_bot_token
 TELEGRAM_CHAT_ID=your_chat_id
 ```
