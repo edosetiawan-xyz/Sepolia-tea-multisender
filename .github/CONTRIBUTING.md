@@ -9,8 +9,9 @@ Terima kasih telah tertarik untuk berkontribusi pada proyek ini! Berikut adalah 
 ### 2️⃣ Clone Repo ke Komputer Anda  
    Jalankan perintah berikut di terminal atau Termux:
    ```bash
-   git clone https://github.com/your-username/Assam-multisender.git
-   cd Assam-multisender
+   git clone https://github.com/edosetiawan-xyz/Sepolia-tea-multisender.git
+   cd Sepolia-tea-multisender
+```
 
 ### 3️⃣ Buat Branch Baru
 
