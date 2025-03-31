@@ -1,4 +1,4 @@
-# 📜 Kode Etik Kontributor - Assam Multisender
+# 📜 Kode Etik Kontributor - Sepolia-Tea-Multisender
 
 Kami berkomitmen untuk menciptakan lingkungan yang ramah, terbuka, dan inklusif bagi semua kontributor. Harap ikuti aturan berikut:
 
