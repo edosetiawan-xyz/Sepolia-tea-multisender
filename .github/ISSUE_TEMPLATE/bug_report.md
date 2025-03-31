@@ -23,3 +23,5 @@ Jelaskan bug yang ditemukan secara singkat.
 Jika ada screenshot, lampirkan di sini.
 
 Terima kasih telah melaporkan! 🚀
+
+
