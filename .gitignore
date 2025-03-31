@@ -1,0 +1,108 @@
+############################################
+# 🚀 edosetiawan.eth - ULTIMATE .GITIGNORE 🚀 #
+#   🔥 Keep your repo clean & secure! 🔥   #
+############################################
+
+# 🛑 Node.js dependencies (DO NOT COMMIT)
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+npm-debug.log*
+yarn-debug.log
+yarn-error.log
+
+# 🔐 Environment variables (DO NOT UPLOAD SENSITIVE DATA)
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.backup
+!.env.example  # ✅ Allowed only for reference
+
+# 🔑 Security & private keys (DO NOT LEAK!)
+*.pem
+*.key
+*.crt
+*.p12
+*.cer
+*.der
+*.ovpn
+ssh_config
+id_rsa
+id_rsa.pub
+known_hosts
+
+# 📝 Log files & debug data
+logs/
+*.log
+error_log.txt
+debug.log
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# 🛠 Temporary & cache files (DO NOT TRACK)
+*.tmp
+*.cache
+*.bak
+*.swp
+*.swo
+*.swn
+*.sublime-workspace
+*.vscode
+__pycache__/
+.pnpm-debug.log
+out/
+temp/
+tmp/
+coverage/
+.cache/
+.history/
+.idea/
+
+# 🔄 Transaction checkpoint & reports (DO NOT TRACK)
+checkpoint.txt
+Laporan transaksi sukses.txt
+Laporan Transaksi gagal.txt
+report.csv
+
+# 📂 Ignore uploaded files & output directories
+uploads/
+output/
+dist/
+build/
+public/
+generated/
+
+# 💻 System files (OS-generated, should be ignored)
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+*.lock
+
+# 📱 Ignore Termux-specific files (to prevent accidental commits)
+termux.properties
+.termux/
+termux-home/
+
+# 🐍 Ignore Python virtual environments (if used)
+venv/
+*.pyc
+__pycache__/
+
+# 🐳 Ignore Docker & Deployment Configs (if applicable)
+docker-compose.yml
+Dockerfile
+*.dockerignore
+.kube/
+
+############################################
+# 🚀 Powered by edosetiawan.eth | 2025 🚀  #
+#      💡 HACK SMART, CODE HARD! 💡      #
+############################################
+
+felicia_*.csv
+.data/
