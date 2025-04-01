@@ -167,7 +167,7 @@ function readCSVFile(filePath) {
   return transactions;
 }
 ```
-Script Baru (Assam-multisender.js):
+Script Baru (Sepolia-multisender.js):
 ```Javascript
 // Kode Baru: Pemrosesan file CSV dengan opsi yang lebih fleksibel
 function processCSVFile(filePath) {
@@ -417,7 +417,7 @@ Berdasarkan log git yang disediakan, berikut adalah perubahan utama yang dilakuk
 
 ## 🔍 Kesimpulan
 
-Script baru (Assam-multisender.js) merupakan peningkatan signifikan dari script lama (Assam-multisender-beta.js) dengan penambahan fitur-fitur berikut:
+Script baru (Sepolia-multisender.js) merupakan peningkatan signifikan dari script lama (Assam-multisender-beta.js) dengan penambahan fitur-fitur berikut:
 1. **Antarmuka pengguna yang lebih baik** dengan tampilan ASCII art yang lebih menarik, pemformatan warna yang lebih konsisten, dan menu yang lebih terstruktur
 2. **Fungsionalitas yang lebih lengkap** termasuk cancel nonce, kirim token manual, dukungan multi-token, penanganan transaksi stuck, dan estimasi waktu transaksi
 3. **Penanganan data yang lebih baik** dengan validasi input yang lebih ketat, pemrosesan file CSV yang lebih baik, dan sistem tracking nonce
@@ -458,7 +458,7 @@ cp .env.example .env
 ```
 4. Jalankan script:
 ```shellscript
-node Assam-multisender.js
+node Sepolia-multisender.js
 ```
 **Konfigurasi .env**
 ```shellscript
