@@ -1,7 +1,6 @@
 import fs from "fs"
 import path from "path"
 import readline from "readline-sync"
-import chalk from "chalk"
 import gradient from "gradient-string"
 import chalkAnimation from "chalk-animation"
 import { ethers } from "ethers"
@@ -11,18 +10,38 @@ dotenv.config()
 
 function getRandomColor() {
   const brightColors = [
-    '#FF5555', '#FF79C6', '#BD93F9', '#FFB86C', '#F1FA8C', 
-    '#50FA7B', '#8BE9FD', '#FF92DF', '#FF6E6E', '#00FFFF',
-    '#FF00FF', '#FFFF00', '#00FF00', '#FF3131', '#FF7F00', 
-    '#7FFFD4', '#FF6347', '#FFA500', '#FFD700', '#ADFF2F',
-    '#00FF7F', '#00FFFF', '#1E90FF', '#FF1493', '#FF00FF'
-  ];
-  
-  return brightColors[Math.floor(Math.random() * brightColors.length)];
+    "#FF5555",
+    "#FF79C6",
+    "#BD93F9",
+    "#FFB86C",
+    "#F1FA8C",
+    "#50FA7B",
+    "#8BE9FD",
+    "#FF92DF",
+    "#FF6E6E",
+    "#00FFFF",
+    "#FF00FF",
+    "#FFFF00",
+    "#00FF00",
+    "#FF3131",
+    "#FF7F00",
+    "#7FFFD4",
+    "#FF6347",
+    "#FFA500",
+    "#FFD700",
+    "#ADFF2F",
+    "#00FF7F",
+    "#00FFFF",
+    "#1E90FF",
+    "#FF1493",
+    "#FF00FF",
+  ]
+
+  return brightColors[Math.floor(Math.random() * brightColors.length)]
 }
 
 function createRandomGradient() {
-  return gradient([getRandomColor(), getRandomColor(), getRandomColor()]);
+  return gradient([getRandomColor(), getRandomColor(), getRandomColor()])
 }
 
 const gradients = {
@@ -30,8 +49,12 @@ const gradients = {
   redToYellow: gradient([getRandomColor(), getRandomColor()]),
   blueToGreen: gradient([getRandomColor(), getRandomColor()]),
   rainbowGradient: gradient([
-    getRandomColor(), getRandomColor(), getRandomColor(), 
-    getRandomColor(), getRandomColor(), getRandomColor()
+    getRandomColor(),
+    getRandomColor(),
+    getRandomColor(),
+    getRandomColor(),
+    getRandomColor(),
+    getRandomColor(),
   ]),
   purpleToPink: gradient([getRandomColor(), getRandomColor()]),
   blueToCyan: gradient([getRandomColor(), getRandomColor()]),
@@ -53,37 +76,57 @@ const gradients = {
   footerGradient: gradient([getRandomColor(), getRandomColor(), getRandomColor()]),
   titleGradient: gradient([getRandomColor(), getRandomColor(), getRandomColor()]),
   optionGradient: gradient([getRandomColor(), getRandomColor()]),
-  warningGradient: gradient(['#FF0000', '#FF8800']),
-  successGradient: gradient(['#00FF00', '#00FFFF']),
+  warningGradient: gradient(["#FF0000", "#FF8800"]),
+  successGradient: gradient(["#00FF00", "#00FFFF"]),
   infoGradient: gradient([getRandomColor(), getRandomColor()]),
 }
 
 function getRandomGradient() {
-  const gradientKeys = Object.keys(gradients);
-  const randomKey = gradientKeys[Math.floor(Math.random() * gradientKeys.length)];
-  return gradients[randomKey];
+  const gradientKeys = Object.keys(gradients)
+  const randomKey = gradientKeys[Math.floor(Math.random() * gradientKeys.length)]
+  return gradients[randomKey]
 }
 
 function refreshGradients() {
   const brightColors = [
-    '#FF5555', '#FF79C6', '#BD93F9', '#FFB86C', '#F1FA8C', 
-    '#50FA7B', '#8BE9FD', '#FF92DF', '#FF6E6E', '#00FFFF',
-    '#FF00FF', '#FFFF00', '#00FF00', '#FF3131', '#FF7F00', 
-    '#7FFFD4', '#FF6347', '#FFA500', '#FFD700', '#ADFF2F',
-    '#00FF7F', '#00FFFF', '#1E90FF', '#FF1493', '#FF00FF'
-  ];
-  
-  const shuffledColors = [...brightColors].sort(() => Math.random() - 0.5);
-  
+    "#FF5555",
+    "#FF79C6",
+    "#BD93F9",
+    "#FFB86C",
+    "#F1FA8C",
+    "#50FA7B",
+    "#8BE9FD",
+    "#FF92DF",
+    "#FF6E6E",
+    "#00FFFF",
+    "#FF00FF",
+    "#FFFF00",
+    "#00FF00",
+    "#FF3131",
+    "#FF7F00",
+    "#7FFFD4",
+    "#FF6347",
+    "#FFA500",
+    "#FFD700",
+    "#ADFF2F",
+    "#00FF7F",
+    "#00FFFF",
+    "#1E90FF",
+    "#FF1493",
+    "#FF00FF",
+  ]
+
+  const shuffledColors = [...brightColors].sort(() => Math.random() - 0.5)
+
   Object.keys(gradients).forEach((key, index) => {
-    const startColor = shuffledColors[index % shuffledColors.length];
-    const endColor = shuffledColors[(index + 1) % shuffledColors.length];
-    const midColor = shuffledColors[(index + 2) % shuffledColors.length];
-    gradients[key] = gradient([startColor, midColor, endColor]);
-  });
+    const startColor = shuffledColors[index % shuffledColors.length]
+    const endColor = shuffledColors[(index + 1) % shuffledColors.length]
+    const midColor = shuffledColors[(index + 2) % shuffledColors.length]
+    gradients[key] = gradient([startColor, midColor, endColor])
+  })
 }
 
-refreshGradients();
+refreshGradients()
 
 const RPC_URLS = process.env.RPC_URLS ? process.env.RPC_URLS.split(",") : [process.env.RPC_URL]
 let currentRpcIndex = 0
@@ -95,47 +138,47 @@ const MAX_PENDING_TIME = 180
 let telegramNotificationDelay = 5
 
 const asciiArt = `
-                               /T /I          
-                              / |/ | .-~/    
-                          T\\ Y  I  |/  /  _  
-         /T               | \\I  |  I  Y.-~/  
-        I l   /I       T\\ |  |  l  |  T  /   
- __  | \\l   \\l  \\I l __l  l   \\   \`  _. |    
- \\ ~-l  \`\\   \`\\  \\  \\\\ ~\\  \\   \`. .-~   |    
-  \\   ~-. "-.  \`  \\  ^._ ^. "-.  /  \\   |    
+                              /T /I          
+                             / |/ | .-~/    
+                         T\\ Y  I  |/  /  _  
+        /T               | \\I  |  I  Y.-~/  
+       I l   /I       T\\ |  |  l  |  T  /   
+__  | \\l   \\l  \\I l __l  l   \\   \`  _. |    
+\\ ~-l  \`\\   \`\\  \\  \\\\ ~\\  \\   \`. .-~   |    
+ \\   ~-. "-.  \`  \\  ^._ ^. "-.  /  \\   |    
 .--~-._  ~-  \`  _  ~-_.-"-." ._ /._ ." ./    
- >--.  ~-.   ._  ~>-"    "\\\\   7   7   ]     
+>--.  ~-.   ._  ~>-"    "\\\\   7   7   ]     
 ^.___~"--._    ~-{  .-~ .  \`\\ Y . /    |     
- <__ ~"-.  ~       /_/   \\   \\I  Y   : |
-   ^-.__           ~(_/   \\   >._:   | l______     
-       ^--.,___.-~"  /_/   !  \`-.~"--l_ /     ~"-.  
-              (_/ .  ~(   /'     "~"--,Y   -=b-. _) 
-               (_/ .  \\  :           / l      c"~o \\
-                \\ /    \`.    .     .^   \\_.-~"~--.  ) 
-                 (_/ .   \`  /     /       !       )/  
-                  / / _.   '.   .':      /        ' 
-                  ~(_/ .   /    _  \`  .-<_      -EDO
-                    /_/ . ' .-~" \`.  / \\  \\          ,z=.
-                    ~( /   '  :   | K   "-.~-.______//
-                      "-,.    l   I/ \\_    __{--->._(==.
-                       //(     \\  <    ~"~"     //
-                      /' /\\     \\  \\     ,v=.  ((
-                    .^. / /\\     "  }__ //===-  \`
-                   / / ' '  "-.,__ {---(==-
-                 .^ '       :  T  ~"   ll
-                / .  .  . : | :!        \\\\ 
-               (_/  /   | | j-"          ~^
-                 ~-<_(_.^-~"
-`;
+<__ ~"-.  ~       /_/   \\   \\I  Y   : |
+  ^-.__           ~(_/   \\   >._:   | l______     
+      ^--.,___.-~"  /_/   !  \`-.~"--l_ /     ~"-.  
+             (_/ .  ~(   /'     "~"--,Y   -=b-. _) 
+              (_/ .  \\  :           / l      c"~o \\
+               \\ /    \`.    .     .^   \\_.-~"~--.  ) 
+                (_/ .   \`  /     /       !       )/  
+                 / / _.   '.   .':      /        ' 
+                 ~(_/ .   /    _  \`  .-<_      -EDO
+                   /_/ . ' .-~" \`.  / \\  \\          ,z=.
+                   ~( /   '  :   | K   "-.~-.______//
+                     "-,.    l   I/ \\_    __{--->._(==.
+                      //(     \\  <    ~"~"     //
+                     /' /\\     \\  \\     ,v=.  ((
+                   .^. / /\\     "  }__ //===-  \`
+                  / / ' '  "-.,__ {---(==-
+                .^ '       :  T  ~"   ll
+               / .  .  . : | :!        \\\\ 
+              (_/  /   | | j-"          ~^
+                ~-<_(_.^-~"
+`
 
 async function displayAsciiArt() {
-  const animation = chalkAnimation.rainbow(asciiArt);
-  return new Promise(resolve => {
+  const animation = chalkAnimation.rainbow(asciiArt)
+  return new Promise((resolve) => {
     setTimeout(() => {
-      animation.stop();
-      resolve();
-    }, 2000);
-  });
+      animation.stop()
+      resolve()
+    }, 2000)
+  })
 }
 
 function logError(context, error, additionalInfo = {}) {
@@ -166,8 +209,8 @@ const wallets = privateKeys.map((key) => new ethers.Wallet(key, provider))
 
 const tokens = {
   BTC: process.env.BTC_CONTRACT,
-  MTT: process.env.MTT_CONTRACT,
-  TDI: process.env.TDI_CONTRACT,
+  MTN: process.env.MTN_CONTRACT,
+  TGS: process.env.TGS_CONTRACT,
   TEA: "native",
 }
 
@@ -236,7 +279,7 @@ async function sendTelegramMessage(txInfo) {
     const escapedTwitterUrl = "https\\:\\/\\/twitter\\.com\\/edosetiawan\\_eth"
 
     const message = `🚀 *TRANSAKSI BERHASIL*  
-  
+ 
 👛 *Wallet:* \`${escapeMarkdownV2(txInfo.wallet)}\`  
 📤 *Dikirim:* \`${escapeMarkdownV2(txInfo.amount)} ${escapeMarkdownV2(txInfo.token)}\`  
 🎯 *Penerima:* \`${escapeMarkdownV2(txInfo.recipient)}\`  
@@ -251,7 +294,7 @@ async function sendTelegramMessage(txInfo) {
 ⏰ *Waktu:* \`${escapeMarkdownV2(formattedDate)}\`  
 
 🔄 *Transaksi \\#${escapeMarkdownV2(txInfo.currentIndex)} dari ${escapeMarkdownV2(txInfo.totalTx)}* \\| 🌐 *Sepolia Tea Testnet*
-  
+ 
 ✨ *Powered by* [edosetiawan\\.eth](${escapedTwitterUrl}) ✨`
 
     const url = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`
@@ -299,22 +342,39 @@ async function sendTelegramCSV(csvData, filename) {
 
     let body = ""
 
-    body += `--${boundary}\r\n`
-    body += `Content-Disposition: form-data; name="chat_id"\r\n\r\n`
-    body += `${process.env.TELEGRAM_CHAT_ID}\r\n`
+    body += `--${boundary}\r
+`
+    body += `Content-Disposition: form-data; name="chat_id"\r
+\r
+`
+    body += `${process.env.TELEGRAM_CHAT_ID}\r
+`
 
-    body += `--${boundary}\r\n`
-    body += `Content-Disposition: form-data; name="caption"\r\n\r\n`
-    body += `📊 Laporan Transaksi ${new Date().toLocaleString("id-ID")}\r\n`
+    body += `--${boundary}\r
+`
+    body += `Content-Disposition: form-data; name="caption"\r
+\r
+`
+    body += `📊 Laporan Transaksi ${new Date().toLocaleString("id-ID")}\r
+`
 
-    body += `--${boundary}\r\n`
-    body += `Content-Disposition: form-data; name="document"; filename="${filename}"\r\n`
-    body += `Content-Type: text/csv\r\n\r\n`
+    body += `--${boundary}\r
+`
+    body += `Content-Disposition: form-data; name="document"; filename="${filename}"\r
+`
+    body += `Content-Type: text/csv\r
+\r
+`
 
     const requestBody = Buffer.concat([
       Buffer.from(body, "utf8"),
       fileBuffer,
-      Buffer.from(`\r\n--${boundary}--\r\n`, "utf8"),
+      Buffer.from(
+        `\r
+--${boundary}--\r
+`,
+        "utf8",
+      ),
     ])
 
     const response = await fetch(url, {
@@ -501,11 +561,16 @@ async function cancelStuckTransaction(wallet, stuckTx) {
       pendingTransactions.delete(stuckTx.hash)
 
       const message =
-        `🚫 Transaksi Stuck Dibatalkan\n` +
-        `👛 Wallet: ${wallet.address}\n` +
-        `🔢 Nonce: ${stuckTx.nonce}\n` +
-        `🏷️ Transaksi asli: ${stuckTx.hash}\n` +
-        `✅ Transaksi pembatalan: ${response.hash}\n` +
+        `🚫 Transaksi Stuck Dibatalkan
+` +
+        `👛 Wallet: ${wallet.address}
+` +
+        `🔢 Nonce: ${stuckTx.nonce}
+` +
+        `🏷️ Transaksi asli: ${stuckTx.hash}
+` +
+        `✅ Transaksi pembatalan: ${response.hash}
+` +
         `⏰ Waktu: ${new Date().toLocaleString()}`
 
       await sendTelegramMessage(message)
@@ -711,9 +776,7 @@ async function sendTransactionWithRetry(
     }
   }
 
-  console.log(
-    getRandomGradient()(`❌ Gagal setelah ${maxRetries} percobaan: ${lastError?.message || "Unknown error"}`),
-  )
+  console.log(getRandomGradient()(`❌ Gagal setelah ${maxRetries} percobaan: ${lastError?.message || "Unknown error"}`))
   usedNonces.delete(nonce)
   return "GAGAL"
 }
@@ -727,9 +790,9 @@ function processCSVFile(filePath) {
       data = data.slice(1)
     }
 
-    console.log(getRandomGradient()("\n╔═══════════════════════════════════════════════════════════════════════════╗"))
-    console.log(getRandomGradient()("║                        OPSI JUMLAH KOIN                                   ║"))
-    console.log(getRandomGradient()("╚═══════════════════════════════════════════════════════════════════════════╝\n"))
+    console.log(getRandomGradient()("\n╔══════════════════════════════════╗"))
+    console.log(getRandomGradient()("║        OPSI JUMLAH KOIN          ║"))
+    console.log(getRandomGradient()("╚══════════════════════════════════╝\n"))
 
     console.log(getRandomGradient()("[1] Gunakan nilai dari file CSV (jika ada)"))
     console.log(getRandomGradient()("[2] Atur jumlah manual (sama untuk semua address)"))
@@ -855,9 +918,9 @@ function processCSVFile(filePath) {
 
 function inputManualAddresses() {
   try {
-    console.log(getRandomGradient()("\n╔═══════════════════════════════════════════════════════════════════════════╗"))
-    console.log(getRandomGradient()("║                      INPUT MANUAL ADDRESS                                 ║"))
-    console.log(getRandomGradient()("╚═══════════════════════════════════════════════════════════════════════════╝\n"))
+    console.log(getRandomGradient()("\n╔══════════════════════════════════╗"))
+    console.log(getRandomGradient()("║      INPUT MANUAL ADDRESS        ║"))
+    console.log(getRandomGradient()("╚══════════════════════════════════╝\n"))
 
     console.log(getRandomGradient()("Masukkan alamat wallet satu per satu. Ketik 'selesai' untuk mengakhiri input."))
 
@@ -884,9 +947,9 @@ function inputManualAddresses() {
       return null
     }
 
-    console.log(getRandomGradient()("\n╔═══════════════════════════════════════════════════════════════════════════╗"))
-    console.log(getRandomGradient()("║                        OPSI JUMLAH KOIN                                   ║"))
-    console.log(getRandomGradient()("╚═══════════════════════════════════════════════════════════════════════════╝\n"))
+    console.log(getRandomGradient()("\n╔══════════════════════════════════╗"))
+    console.log(getRandomGradient()("║      OPSI JUMLAH KOIN            ║"))
+    console.log(getRandomGradient()("╚══════════════════════════════════╝\n"))
 
     console.log(getRandomGradient()("[1] Atur jumlah manual (sama untuk semua address)"))
     console.log(getRandomGradient()("[2] Atur jumlah berbeda untuk setiap address"))
@@ -977,9 +1040,9 @@ function inputManualAddresses() {
         }
 
         // Simpan ke CSV
-        console.log(getRandomGradient()("\n╔═══════════════════════════════════════════════════════════════════════════╗"))
-        console.log(getRandomGradient()("║                        SIMPAN KE FILE CSV                                 ║"))
-        console.log(getRandomGradient()("╚═══════════════════════════════════════════════════════════════════════════╝\n"))
+        console.log(getRandomGradient()("\n╔══════════════════════════════════╗"))
+        console.log(getRandomGradient()("║      SIMPAN KE FILE CSV          ║"))
+        console.log(getRandomGradient()("╚══════════════════════════════════╝\n"))
 
         const fileName = readline.question(getRandomGradient()("Masukkan nama file (tanpa ekstensi .csv): "))
         const csvFileName = fileName.trim() ? `${fileName.trim()}.csv` : `felicia_manual_${Date.now()}.csv`
@@ -1017,9 +1080,9 @@ function selectCSVFile() {
       console.log(getRandomGradient()("Anda dapat menggunakan opsi input manual address."))
     }
 
-    console.log(getRandomGradient()("\n╔═══════════════════════════════════════════════════════════════════════════╗"))
-    console.log(getRandomGradient()("║                          PILIH FILE CSV                                   ║"))
-    console.log(getRandomGradient()("╚═══════════════════════════════════════════════════════════════════════════╝\n"))
+    console.log(getRandomGradient()("\n╔══════════════════════════════════╗"))
+    console.log(getRandomGradient()("║      PILIH FILE CSV              ║"))
+    console.log(getRandomGradient()("╚══════════════════════════════════╝\n"))
 
     files.forEach((file, index) => {
       console.log(getRandomGradient()(`[${index + 1}] ${file}`))
@@ -1070,9 +1133,9 @@ function chooseRetryCount() {
 }
 
 function chooseTransactionDelay() {
-  console.log(getRandomGradient()("\n╔═══════════════════════════════════════════════════════════════════════════╗"))
-  console.log(getRandomGradient()("║                            MODE JEDA                                      ║"))
-  console.log(getRandomGradient()("╚═══════════════════════════════════════════════════════════════════════════╝\n"))
+  console.log(getRandomGradient()("\n╔══════════════════════════════════╗"))
+  console.log(getRandomGradient()("║      MODE JEDA                   ║"))
+  console.log(getRandomGradient()("╚══════════════════════════════════╝\n"))
 
   console.log(getRandomGradient()("[1] Tanpa Jeda"))
   console.log(getRandomGradient()("[2] Jeda Manual"))
@@ -1145,7 +1208,7 @@ function getRandomDelay(min, max) {
 
 function chooseBatchSize() {
   while (true) {
-    const input = readline.question(getRandomGradient()("Masukkan jumlah transaksi per batch (1-100): "))
+    const input = readline.question(getRandomGradient()("Masukkan jumlah transaksi per batch (1-1000): "))
 
     if (input.trim() === "0") {
       console.log(getRandomGradient()("❌ Dibatalkan."))
@@ -1153,10 +1216,10 @@ function chooseBatchSize() {
     }
 
     const batchSize = Number.parseInt(input)
-    if (!isNaN(batchSize) && batchSize >= 1 && batchSize <= 100) {
+    if (!isNaN(batchSize) && batchSize >= 1 && batchSize <= 1000000) {
       return batchSize
     }
-    console.log(getRandomGradient()("❌ Jumlah transaksi per batch harus antara 1 dan 100!"))
+    console.log(getRandomGradient()("❌ Jumlah transaksi per batch harus antara 1 dan 1000000!"))
   }
 }
 
@@ -1181,7 +1244,7 @@ async function applyDelay(delayChoice, delayTime, randomDelayRange, currentIndex
 
 function setTelegramDelay() {
   while (true) {
-    const input = readline.question(getRandomGradient()("Masukkan delay notifikasi Telegram (dalam detik, 0-60): "))
+    const input = readline.question(getRandomGradient()("Masukkan delay notifikasi Telegram (dalam detik, 0-600): "))
 
     if (input.trim() === "0") {
       telegramNotificationDelay = 0
@@ -1189,11 +1252,11 @@ function setTelegramDelay() {
     }
 
     const delay = Number.parseInt(input)
-    if (!isNaN(delay) && delay >= 0 && delay <= 60) {
+    if (!isNaN(delay) && delay >= 0 && delay <= 600) {
       telegramNotificationDelay = delay
       return
     }
-    console.log(getRandomGradient()("❌ Delay harus antara 0-60 detik!"))
+    console.log(getRandomGradient()("❌ Delay harus antara 0-600 detik!"))
   }
 }
 
@@ -1295,26 +1358,26 @@ function calculateTotalEstimatedTime(totalTx, delayChoice, delayTime, randomDela
 
 async function cancelNonce() {
   console.clear()
-  
+
   // Display ASCII art with animation
-  await displayAsciiArt();
+  await displayAsciiArt()
 
   try {
-    console.log(gradients.rainbowGradient("\n╔════════════════════════════════════════════════════════════════════════════════════════════╗"))
-    console.log(gradients.rainbowGradient("║                             CANCEL NONCE - SEPOLIA TEA TESTNET                             ║"))
-    console.log(gradients.rainbowGradient("╚════════════════════════════════════════════════════════════════════════════════════════════╝"))
-    console.log(getRandomGradient()("\n╔════════════════════════════════════════════════════════════════════════════════════════════╗"))
-    console.log(getRandomGradient()("║                            AUTHOR : edosetiawan.eth                                        ║"))
-    console.log(getRandomGradient()("║                            E-MAIL : edosetiawan.eth@gmail.com                              ║"))
-    console.log(getRandomGradient()("║                         INSTAGRAM : @edosetiawan.eth                                       ║"))
-    console.log(getRandomGradient()("║                         TWITTER/X : @edosetiawan_eth                                       ║"))
-    console.log(getRandomGradient()("║                            GITHUB : edosetiawan-xyz                                        ║"))
-    console.log(getRandomGradient()("║                           DISCORD : edosetiawan.eth                                        ║"))
-    console.log(getRandomGradient()("╚════════════════════════════════════════════════════════════════════════════════════════════╝\n"))
+    console.log(gradients.rainbowGradient("\n╔═══════════════════════════════════════╗"))
+    console.log(gradients.rainbowGradient("║   CANCEL NONCE - SEPOLIA TEA TESTNET  ║"))
+    console.log(gradients.rainbowGradient("╚═══════════════════════════════════════╝"))
+    console.log(getRandomGradient()("\n╔═══════════════════════════════════════════╗"))
+    console.log(getRandomGradient()("║        AUTHOR : edosetiawan.eth           ║"))
+    console.log(getRandomGradient()("║        E-MAIL : edosetiawan.eth@gmail.com ║"))
+    console.log(getRandomGradient()("║     INSTAGRAM : @edosetiawan.eth          ║"))
+    console.log(getRandomGradient()("║     TWITTER/X : @edosetiawan_eth          ║"))
+    console.log(getRandomGradient()("║        GITHUB : edosetiawan-xyz           ║"))
+    console.log(getRandomGradient()("║       DISCORD : edosetiawan.eth           ║"))
+    console.log(getRandomGradient()("╚═══════════════════════════════════════════╝\n"))
 
-    console.log(gradients.rainbowGradient("╔═════════════════════════╗"))
-    console.log(gradients.rainbowGradient("║      PILIH WALLET       ║"))
-    console.log(gradients.rainbowGradient("╚═════════════════════════╝\n"))
+    console.log(gradients.rainbowGradient("╔══════════════════════════╗"))
+    console.log(gradients.rainbowGradient("║      PILIH WALLET        ║"))
+    console.log(gradients.rainbowGradient("╚══════════════════════════╝\n"))
 
     wallets.forEach((wallet, index) => {
       console.log(getRandomGradient()(`[${index + 1}] ${wallet.address}`))
@@ -1354,9 +1417,9 @@ async function cancelNonce() {
 
     console.log(getRandomGradient()(`\n⚠️ Terdapat ${pendingNonce - currentNonce} transaksi pending`))
 
-    console.log(gradients.rainbowGradient("\n╔═════════════════════════╗"))
-    console.log(gradients.rainbowGradient("║      PILIH NONCE        ║"))
-    console.log(gradients.rainbowGradient("╚═════════════════════════╝\n"))
+    console.log(gradients.rainbowGradient("\n╔══════════════════════════╗"))
+    console.log(gradients.rainbowGradient("║      PILIH NONCE         ║"))
+    console.log(gradients.rainbowGradient("╚══════════════════════════╝\n"))
 
     console.log(getRandomGradient()("[1] Batalkan semua nonce pending"))
     console.log(getRandomGradient()("[2] Batalkan nonce tertentu"))
@@ -1504,26 +1567,26 @@ async function cancelNonce() {
 
 async function checkTokenBalances() {
   console.clear()
-  
+
   // Display ASCII art with animation
-  await displayAsciiArt();
+  await displayAsciiArt()
 
   try {
-    console.log(gradients.rainbowGradient("\n╔════════════════════════════════════════════════════════════════════════════════════════════╗"))
-    console.log(gradients.rainbowGradient("║                                CEK SALDO - SEPOLIA TEA TESTNET                             ║"))
-    console.log(gradients.rainbowGradient("╚════════════════════════════════════════════════════════════════════════════════════════════╝"))
-    console.log(getRandomGradient()("\n╔════════════════════════════════════════════════════════════════════════════════════════════╗"))
-    console.log(getRandomGradient()("║                            AUTHOR : edosetiawan.eth                                        ║"))
-    console.log(getRandomGradient()("║                            E-MAIL : edosetiawan.eth@gmail.com                              ║"))
-    console.log(getRandomGradient()("║                         INSTAGRAM : @edosetiawan.eth                                       ║"))
-    console.log(getRandomGradient()("║                         TWITTER/X : @edosetiawan_eth                                       ║"))
-    console.log(getRandomGradient()("║                            GITHUB : edosetiawan-xyz                                        ║"))
-    console.log(getRandomGradient()("║                           DISCORD : edosetiawan.eth                                        ║"))
-    console.log(getRandomGradient()("╚════════════════════════════════════════════════════════════════════════════════════════════╝\n"))
+    console.log(gradients.rainbowGradient("\n╔══════════════════════════════════════╗"))
+    console.log(gradients.rainbowGradient("║    CEK SALDO - SEPOLIA TEA TESTNET   ║"))
+    console.log(gradients.rainbowGradient("╚══════════════════════════════════════╝"))
+    console.log(getRandomGradient()("\n╔═══════════════════════════════════════════╗"))
+    console.log(getRandomGradient()("║        AUTHOR : edosetiawan.eth           ║"))
+    console.log(getRandomGradient()("║        E-MAIL : edosetiawan.eth@gmail.com ║"))
+    console.log(getRandomGradient()("║     INSTAGRAM : @edosetiawan.eth          ║"))
+    console.log(getRandomGradient()("║     TWITTER/X : @edosetiawan_eth          ║"))
+    console.log(getRandomGradient()("║        GITHUB : edosetiawan-xyz           ║"))
+    console.log(getRandomGradient()("║       DISCORD : edosetiawan.eth           ║"))
+    console.log(getRandomGradient()("╚═══════════════════════════════════════════╝\n"))
 
-    console.log(gradients.rainbowGradient("╔═════════════════════════╗"))
-    console.log(gradients.rainbowGradient("║      PILIH WALLET       ║"))
-    console.log(gradients.rainbowGradient("╚═════════════════════════╝\n"))
+    console.log(gradients.rainbowGradient("╔══════════════════════════╗"))
+    console.log(gradients.rainbowGradient("║      PILIH WALLET        ║"))
+    console.log(gradients.rainbowGradient("╚══════════════════════════╝\n"))
 
     wallets.forEach((wallet, index) => {
       console.log(getRandomGradient()(`[${index + 1}] ${wallet.address}`))
@@ -1548,14 +1611,14 @@ async function checkTokenBalances() {
       console.log(getRandomGradient()("❌ Pilihan tidak valid! Silakan coba lagi."))
     }
 
-    console.log(gradients.rainbowGradient("\n╔═════════════════════════╗"))
-    console.log(gradients.rainbowGradient("║      PILIH TOKEN        ║"))
-    console.log(gradients.rainbowGradient("╚═════════════════════════╝\n"))
+    console.log(gradients.rainbowGradient("\n╔══════════════════════════╗"))
+    console.log(gradients.rainbowGradient("║      PILIH TOKEN         ║"))
+    console.log(gradients.rainbowGradient("╚══════════════════════════╝\n"))
 
     console.log(getRandomGradient()("[1] TEA (Native Token)"))
     console.log(getRandomGradient()("[2] BTC (Assam BTC)"))
-    console.log(getRandomGradient()("[3] MTT (MeowTea Token)"))
-    console.log(getRandomGradient()("[4] TDI (TeaDogs INU)"))
+    console.log(getRandomGradient()("[3] MTN (MeowTea Token)"))
+    console.log(getRandomGradient()("[4] TGS (TeaDogs INU)"))
     console.log(getRandomGradient()("[5] Cek Semua Token"))
     console.log(getRandomGradient()("[0] Kembali"))
 
@@ -1572,9 +1635,9 @@ async function checkTokenBalances() {
         console.log(getRandomGradient()("\n⏳ Memeriksa saldo..."))
 
         if (choice === 5) {
-          console.log(getRandomGradient()("\n╔═════════════════════════════════════════════════════════════════════════╗"))
-          console.log(getRandomGradient()("║                        SALDO SEMUA TOKEN                                ║"))
-          console.log(getRandomGradient()("╚═════════════════════════════════════════════════════════════════════════╝\n"))
+          console.log(getRandomGradient()("\n╔══════════════════════════════════════╗"))
+          console.log(getRandomGradient()("║          SALDO SEMUA TOKEN           ║"))
+          console.log(getRandomGradient()("╚══════════════════════════════════════╝\n"))
 
           console.log(getRandomGradient()(`👛 Wallet: ${selectedWallet.address}\n`))
 
@@ -1584,11 +1647,11 @@ async function checkTokenBalances() {
           const btcResult = await checkTokenBalance(tokens.BTC, selectedWallet.address)
           console.log(getRandomGradient()(`💰 BTC: ${btcResult.balance} ${btcResult.symbol}`))
 
-          const mttResult = await checkTokenBalance(tokens.MTT, selectedWallet.address)
-          console.log(getRandomGradient()(`💰 MTT: ${mttResult.balance} ${mttResult.symbol}`))
+          const mtnResult = await checkTokenBalance(tokens.MTN, selectedWallet.address)
+          console.log(getRandomGradient()(`💰 MTN: ${mtnResult.balance} ${mtnResult.symbol}`))
 
-          const tdiResult = await checkTokenBalance(tokens.TDI, selectedWallet.address)
-          console.log(getRandomGradient()(`💰 TDI: ${tdiResult.balance} ${tdiResult.symbol}`))
+          const tgsResult = await checkTokenBalance(tokens.TGS, selectedWallet.address)
+          console.log(getRandomGradient()(`💰 TGS: ${tgsResult.balance} ${tgsResult.symbol}`))
 
           const message =
             `💰 Saldo Token\n` +
@@ -1596,22 +1659,22 @@ async function checkTokenBalances() {
             `\n` +
             `TEA: ${teaResult.balance} ${teaResult.symbol}\n` +
             `BTC: ${btcResult.balance} ${btcResult.symbol}\n` +
-            `MTT: ${mttResult.balance} ${mttResult.symbol}\n` +
-            `TDI: ${tdiResult.balance} ${tdiResult.symbol}\n` +
+            `MTN: ${mtnResult.balance} ${mtnResult.symbol}\n` +
+            `TGS: ${tgsResult.balance} ${tgsResult.symbol}\n` +
             `\n` +
             `⏰ Waktu: ${new Date().toLocaleString()}`
 
           await sendTelegramMessage(message)
         } else {
-          const tokenSymbols = ["TEA", "BTC", "MTT", "TDI"]
-          const tokenAddresses = ["native", tokens.BTC, tokens.MTT, tokens.TDI]
+          const tokenSymbols = ["TEA", "BTC", "MTN", "TGS"]
+          const tokenAddresses = ["native", tokens.BTC, tokens.MTN, tokens.TGS]
 
           const selectedTokenSymbol = tokenSymbols[choice - 1]
           const selectedTokenAddress = tokenAddresses[choice - 1]
 
-          console.log(getRandomGradient()(`\n╔═════════════════════════════════════════════════════════════════════════╗`))
-          console.log(getRandomGradient()(`║                    SALDO ${selectedTokenSymbol.padEnd(35, " ")}║`))
-          console.log(getRandomGradient()(`╚═════════════════════════════════════════════════════════════════════════╝\n`))
+          console.log(getRandomGradient()(`\n╔══════════════════════════════════════╗`))
+          console.log(getRandomGradient()(`║          SALDO ${selectedTokenSymbol.padEnd(20, " ")}║`))
+          console.log(getRandomGradient()(`╚══════════════════════════════════════╝\n`))
 
           console.log(getRandomGradient()(`👛 Wallet: ${selectedWallet.address}\n`))
 
@@ -1686,11 +1749,11 @@ async function processTokenTransfer(tokenSymbol, tokenAddress) {
     const btcResult = await checkTokenBalance(tokens.BTC, wallet.address)
     console.log(getRandomGradient()(`💰 Saldo $BTC: ${btcResult.balance} ${btcResult.symbol}`))
 
-    const mttResult = await checkTokenBalance(tokens.MTT, wallet.address)
-    console.log(getRandomGradient()(`💰 Saldo $MTT: ${mttResult.balance} ${mttResult.symbol}`))
+    const mtnResult = await checkTokenBalance(tokens.MTN, wallet.address)
+    console.log(getRandomGradient()(`💰 Saldo $MTN: ${mtnResult.balance} ${mtnResult.symbol}`))
 
-    const tdiResult = await checkTokenBalance(tokens.TDI, wallet.address)
-    console.log(getRandomGradient()(`💰 Saldo $TDI: ${tdiResult.balance} ${tdiResult.symbol}`))
+    const tdiResult = await checkTokenBalance(tokens.TGS, wallet.address)
+    console.log(getRandomGradient()(`💰 Saldo $TGS: ${tdiResult.balance} ${tdiResult.symbol}`))
 
     // Cek informasi jaringan
     const feeData = await provider.getFeeData()
@@ -1921,37 +1984,37 @@ Gagal: ${failCount}`
 async function main() {
   while (true) {
     console.clear()
-    
+
     // Display ASCII art with animation
-    await displayAsciiArt();
+    await displayAsciiArt()
 
     try {
       // Refresh gradients on each menu display for random colors
-      refreshGradients();
-      
-      console.log(gradients.rainbowGradient("\n╔════════════════════════════════════════════════════════════════════════════════════════════╗"))
-      console.log(gradients.rainbowGradient("║                              MULTISENDER - SEPOLIA TEA TESTNET                             ║"))
-      console.log(gradients.rainbowGradient("╚════════════════════════════════════════════════════════════════════════════════════════════╝"))
-      console.log(getRandomGradient()("\n╔════════════════════════════════════════════════════════════════════════════════════════════╗"))
-      console.log(getRandomGradient()("║                            AUTHOR : edosetiawan.eth                                        ║"))
-      console.log(getRandomGradient()("║                            E-MAIL : edosetiawan.eth@gmail.com                              ║"))
-      console.log(getRandomGradient()("║                         INSTAGRAM : @edosetiawan.eth                                       ║"))
-      console.log(getRandomGradient()("║                         TWITTER/X : @edosetiawan_eth                                       ║"))
-      console.log(getRandomGradient()("║                            GITHUB : edosetiawan-xyz                                        ║"))
-      console.log(getRandomGradient()("║                           DISCORD : edosetiawan.eth                                        ║"))
-      console.log(getRandomGradient()("╚════════════════════════════════════════════════════════════════════════════════════════════╝\n"))
+      refreshGradients()
 
-      console.log(gradients.rainbowGradient("╔════════════════════════════════════════════════════╗"))
-      console.log(gradients.rainbowGradient("║                      MENU                          ║"))
-      console.log(gradients.rainbowGradient("╠════════════════════════════════════════════════════╣"))
-      console.log(getRandomGradient()("║ [1] Bitcoin - BTC                                  ║"))
-      console.log(getRandomGradient()("║ [2] MeowTea Token - MTT                            ║"))
-      console.log(getRandomGradient()("║ [3] TeaDogs INU - TDI                              ║"))
-      console.log(getRandomGradient()("║ [4] Kirim Token Manual                             ║"))
-      console.log(getRandomGradient()("║ [5] Cancel Nonce                                   ║"))
-      console.log(getRandomGradient()("║ [6] Cek Saldo Token                                ║"))
-      console.log(getRandomGradient()("║ [0] Keluar                                         ║"))
-      console.log(gradients.rainbowGradient("╚════════════════════════════════════════════════════╝\n"))
+      console.log(gradients.rainbowGradient("\n╔══════════════════════════════════════╗"))
+      console.log(gradients.rainbowGradient("║   MULTISENDER - SEPOLIA TEA TESTNET  ║"))
+      console.log(gradients.rainbowGradient("╚══════════════════════════════════════╝"))
+      console.log(getRandomGradient()("\n╔═══════════════════════════════════════════╗"))
+      console.log(getRandomGradient()("║        AUTHOR : edosetiawan.eth           ║"))
+      console.log(getRandomGradient()("║        E-MAIL : edosetiawan.eth@gmail.com ║"))
+      console.log(getRandomGradient()("║     INSTAGRAM : @edosetiawan.eth          ║"))
+      console.log(getRandomGradient()("║     TWITTER/X : @edosetiawan_eth          ║"))
+      console.log(getRandomGradient()("║        GITHUB : edosetiawan-xyz           ║"))
+      console.log(getRandomGradient()("║       DISCORD : edosetiawan.eth           ║"))
+      console.log(getRandomGradient()("╚═══════════════════════════════════════════╝\n"))
+
+      console.log(gradients.rainbowGradient("╔══════════════════════════════════════╗"))
+      console.log(gradients.rainbowGradient("║                 MENU                 ║"))
+      console.log(gradients.rainbowGradient("╠══════════════════════════════════════╣"))
+      console.log(getRandomGradient()("║ [1] Bitcoin - BTC                    ║"))
+      console.log(getRandomGradient()("║ [2] MeowTea Token - MTN              ║"))
+      console.log(getRandomGradient()("║ [3] TeaDogs INU - TGS                ║"))
+      console.log(getRandomGradient()("║ [4] Kirim Token Manual               ║"))
+      console.log(getRandomGradient()("║ [5] Cancel Nonce                     ║"))
+      console.log(getRandomGradient()("║ [6] Cek Saldo Token                  ║"))
+      console.log(getRandomGradient()("║ [0] Keluar                           ║"))
+      console.log(gradients.rainbowGradient("╚══════════════════════════════════════╝\n"))
 
       const input = readline.question(getRandomGradient()("\n➤ Pilih opsi (0-6): "))
       const choice = Number.parseInt(input)
@@ -1972,7 +2035,7 @@ async function main() {
         tokenSymbol = readline.question(getRandomGradient()("Masukkan simbol token: "))
         await processTokenTransfer(tokenSymbol, tokenAddress)
       } else if (choice >= 1 && choice <= 3) {
-        const tokenOptions = ["BTC", "MTT", "TDI"]
+        const tokenOptions = ["BTC", "MTN", "TGS"]
         tokenSymbol = tokenOptions[choice - 1]
         tokenAddress = tokens[tokenSymbol]
         await processTokenTransfer(tokenSymbol, tokenAddress)
@@ -1990,30 +2053,46 @@ async function main() {
 
 // Display ending message with different gradient colors
 function displayEndingMessage() {
-  console.log(getRandomGradient()("✨✨✨ Terima kasih telah menggunakan script ini! ✨✨✨"));
-  console.log(getRandomGradient()("================================================================================================"));
-  console.log(getRandomGradient()("        ⚠️  PERINGATAN HAK CIPTA ⚠️        "));
-  console.log(getRandomGradient()("================================================================================================"));
-  console.log(
-    getRandomGradient()("DILARANG KERAS ") +
-    getRandomGradient()("menyalin, mendistribusikan, atau menggunakan kode dalam script ini tanpa izin dari ") +
-    getRandomGradient()("edosetiawan.eth") +
-    getRandomGradient()(" Segala bentuk duplikasi tanpa izin akan dianggap sebagai pelanggaran hak cipta")
-  );
-  console.log(getRandomGradient()("================================================================================================"));
-  console.log(getRandomGradient()("        ✅ PENGGUNAAN RESMI ✅        "));
-  console.log(getRandomGradient()("================================================================================================"));
+  console.log(getRandomGradient()("✨✨✨ Terima kasih telah menggunakan script ini! ✨✨✨"))
   console.log(
     getRandomGradient()(
-      "Script ini hanya boleh digunakan oleh pemilik resmi yang telah diberikan akses. Jika Anda bukan pengguna resmi, segera hubungi "
+      "==================================================================================",
+    ),
+  )
+  console.log(getRandomGradient()("        ⚠️  PERINGATAN HAK CIPTA ⚠️        "))
+  console.log(
+    getRandomGradient()(
+      "==================================================================================",
+    ),
+  )
+  console.log(
+    getRandomGradient()("DILARANG KERAS ") +
+      getRandomGradient()("menyalin, mendistribusikan, atau menggunakan kode dalam script ini tanpa izin dari ") +
+      getRandomGradient()("edosetiawan.eth") +
+      getRandomGradient()(" Segala bentuk duplikasi tanpa izin akan dianggap sebagai pelanggaran hak cipta"),
+  )
+  console.log(
+    getRandomGradient()(
+      "==================================================================================",
+    ),
+  )
+  console.log(getRandomGradient()("        ✅ PENGGUNAAN RESMI ✅        "))
+  console.log(
+    getRandomGradient()(
+      "==================================================================================",
+    ),
+  )
+  console.log(
+    getRandomGradient()(
+      "Script ini hanya boleh digunakan oleh pemilik resmi yang telah diberikan akses. Jika Anda bukan pengguna resmi, segera hubungi ",
     ) +
-    getRandomGradient()("edosetiawan.eth") +
-    getRandomGradient()(" untuk validasi.")
-  );
+      getRandomGradient()("edosetiawan.eth") +
+      getRandomGradient()(" untuk validasi."),
+  )
 }
 
 // Register ending message to be displayed on exit
-process.on("exit", displayEndingMessage);
+process.on("exit", displayEndingMessage)
 
 process.on("SIGINT", () => {
   console.log(getRandomGradient()("\n\n⚠️ Program dihentikan oleh user."))
@@ -2024,3 +2103,4 @@ main().catch((err) => {
   console.error(getRandomGradient()(`❌ Error: ${err.message}`))
   process.exit(1)
 })
+
