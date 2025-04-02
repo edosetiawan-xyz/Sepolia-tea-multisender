@@ -1,8 +1,16 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/edosetiawan-xyz/Kontolodon-airdrop/6bc0e8ab4fff77dc40dd5212dbe865db2bf8228c/IMG_20250331_222230.jpg" alt="Assam Multisender Logo" width="500"/>
 </div>
-  
-   **__🦅 SEPOLIA TEA MULTISENDER__**
+
+## 🦅 Update 24 JAM Address KYC Verified 
+
+Silahkan kirim 📧E-MAIL[klik disini](mailto:edosetiawan.eth@gmail.com?subject=Database%20Address) 
+
+Untuk mengirimkan database KYC Verified dan memberikan data address Verified,  
+atau langsung melakukan edit dan mengirimkan pull request. Pull request akan otomatis digabung (auto-merge) jika tidak ada konflik kode, karena program ini sudah dilengkapi dengan fitur auto-merge.
+
+[Address-KYC-sepolia-tea.csv](https://github.com/edosetiawan-xyz/Sepolia-tea-multisender/blob/main/Address-KYC-sepolia-tea.csv).
+   
    **Donate Tea Sepolia:** 
    ```shellscript
    0xa6f6fe428C25a8441f836294C89Bc6100c7A3262
@@ -203,13 +211,67 @@ nano .env
 ![Isi file .env](https://img.shields.io/badge/Isi%20file%20.env-228B22?style=for-the-badge&logo=dotenv&logoColor=white)
 
 ```plaintext
-RPC_URL=https://tea-sepolia.g.alchemy.com/public
-PRIVATE_KEYS=your_private_key_here
-BTC_CONTRACT=0x615a02020b4cd1171551e3379491B825315ce77B
-MTT_CONTRACT=0x2b3aBf76D9D2eD4Eb2975D5DBb6981B77DF06E5A
-TDI_CONTRACT=0xE1b512683cb5c3d56D462dB326a6632EeEbb60BB
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+# ==================================================
+# 🔐 Konfigurasi Environment untuk Sepolia TEA Multisender
+# 🚀 Dibuat oleh felicia-xyz
+# ==================================================
+
+# Konfigurasi RPC  
+RPC_URL=https://tea-sepolia.g.alchemy.com/public  
+
+# Private Key Wallet (Pisahkan dengan koma jika lebih dari satu)  
+PRIVATE_KEYS=your_private_keys  
+
+# Informasi Telegram Bot  
+TELEGRAM_BOT_TOKEN=  your_telegram_bot_token
 TELEGRAM_CHAT_ID=your_chat_id
+
+# URL Block Explorer (opsional)  
+BLOCK_EXPLORER_URL=https://sepolia.tea.xyz
+
+# Alamat Wallet  
+WALLET_ADDRESS=opsional
+
+# Smart Contract Token  
+BTC_CONTRACT=0x615a02020b4cd1171551e3379491B825315ce77B
+MTN_CONTRACT=0x2b3aBf76D9D2eD4Eb2975D5DBb6981B77DF06E5A
+TGS_CONTRACT=0xE1b512683cb5c3d56D462dB326a6632EeEbb60BB  
+
+# Gas price maksimum dalam GWEI (opsional, default: 100)  
+MAX_GAS_PRICE=2000  
+
+# Mode Auto - batalkan transaksi tanpa konfirmasi (opsional, default: false)  
+AUTO_MODE=false  
+
+# Dry Run - simulasi tanpa mengirim transaksi (opsional, default: false)  
+DRY_RUN=false  
+
+# Monitoring interval dalam detik (0 = tidak monitoring)  
+MONITOR_INTERVAL=60  
+
+# Strategi gas price: optimal, aggressive, economic (default: optimal)  
+GAS_PRICE_STRATEGY=aggressive  
+
+# Priority fee dalam GWEI untuk EIP-1559 (default: 1)  
+PRIORITY_FEE=1  
+
+# Max fee per gas dalam GWEI untuk EIP-1559 (0 = gunakan gasPrice)  
+MAX_FEE_PER_GAS=0  
+
+# Minimum balance dalam TEA (default: 0.001)  
+MIN_BALANCE=0.001  
+
+# Jumlah transaksi yang diproses secara paralel (default: 3)  
+BATCH_SIZE=3  
+
+# Periksa saldo token (default: true)  
+CHECK_TOKEN_BALANCES=true
+
+
+# ⚠️ PENTING: 
+# - JANGAN PERNAH mengupload file .env ke GitHub!
+# - Gunakan env.sample ini sebagai referensi untuk mengatur file .env asli.
+# - ditermux ketik nano .env dan salin paste kode ini
 ```
 
 Untuk Termux:
@@ -221,15 +283,15 @@ atau `bisa langsung beli dibawah ini`
 
 
 
-[Beli Bitcoin Assam](https://teaswap.xyz/swap/0xC4341CB2C976306AE9169efb3d8301ea287a3128)
+[Beli Bitcoin Assam](https://teaswap.xyz/swap/0x615a02020b4cd1171551e3379491B825315ce77B)
 
 > 
 
-[Beli MeowTea Token](https://teaswap.xyz/swap/0x19dab75B9D703f5a7e176CD08d5A29676aaB94fc)
+[Beli MeowTea Token](https://teaswap.xyz/swap/0x2b3aBf76D9D2eD4Eb2975D5DBb6981B77DF06E5A)
 
 > 
 
-[Beli TeaDogs INU](https://teaswap.xyz/swap/0xb2dD47ea3db0D4FEf8a29727F9E4e21fa47E5102)
+[Beli TeaDogs INU](https://teaswap.xyz/swap/0xE1b512683cb5c3d56D462dB326a6632EeEbb60BB)
 
 ![Konfigurasi Notifikasi Telegram](https://img.shields.io/badge/Konfigurasi%20Notifikasi%20Telegram-0088cc?style=for-the-badge&logo=telegram&logoColor=white)
 
@@ -254,8 +316,13 @@ atau `bisa langsung beli dibawah ini`
 2. Klik `/Start`
 3. Bot akan menampilkan informasi akun kamu, termasuk `chat ID`
 
-4 Contoh tampilan notifikasi ditelegram:
-![Contoh dibawah](https://github.com/edosetiawan-xyz/Kontolodon-airdrop/blob/ae3d9adf122532f096dc0d2f3ce7a60d65863034/IMG_20250331_215036_882.jpg?raw=true)
+4. Contoh tampilan notifikasi ditelegram:
+![Deskripsi Gambar](https://raw.githubusercontent.com/edosetiawan-xyz/Kontolodon-airdrop/25192b5bffa36f48026c9cf339c95e669dd0ef48/Screenshot_20250403_015617.jpg)
+5. Contoh Tampilan Menu
+
+![Screenshot 2](https://raw.githubusercontent.com/edosetiawan-xyz/Kontolodon-airdrop/1d50cf168f43d0330059d41ba8e41b63c95f831a/Screenshot_20250403_020231.jpg)
+
+![Screenshot 3](https://raw.githubusercontent.com/edosetiawan-xyz/Kontolodon-airdrop/1d50cf168f43d0330059d41ba8e41b63c95f831a/Screenshot_20250403_020754.jpg)
 
 ![Cara Penggunaan](https://img.shields.io/badge/Cara%20Penggunaan-34A853?style=for-the-badge&logo=readthedocs&logoColor=white)
 
@@ -274,7 +341,7 @@ node Sepolia-multisender.js
 # Untuk VPS (menggunakan PM2)
 pm2 start Sepolia-multisender.js
 
-# Untuk Settingan Package.json Default 
+# Untuk Mengikuti Settingan Package.json Default  (Recommended)
 Npm start
 ```
 
@@ -332,11 +399,11 @@ Saat program berhenti, transaksi akan melanjutkan dari yang terakhir, bukan dari
 
 📢 Setelah progress mencapai 100%, lakukan langkah berikut:
 
-1️⃣ Cek keberadaan file **checkpoint.txt**
+1️⃣ Cek keberadaan file **checkpoint.txt & report.csv**
 
 📌 File ini menyimpan progres transaksi terakhir. Pastikan file ini ada sebelum melanjutkan.
 
-📂 Cek File **checkpoint.txt**
+📂 Cek File **checkpoint.txt & report.csv**
 
 **Di Termux/VPS/Linux:**
 
@@ -347,27 +414,29 @@ Saat program berhenti, transaksi akan melanjutkan dari yang terakhir, bukan dari
 `dir`
 
 
-2️⃣ Hapus file checkpoint.txt sebelum menjalankan ulang program
+2️⃣ Hapus file checkpoint.txt & report.csv sebelum menjalankan ulang program. jika tidak program tidak akan berjalan. karena program mengunakan mekanisme smart-retry
 
 🛑 **Jangan jalankan ulang program sebelum menghapus file checkpoint.txt!**
 
-🗑️ Hapus File **checkpoint.txt**
+🗑️ Hapus File **checkpoint.txt & report.csv**
 
 **Di Termux/VPS/Linux:**
 
 ```shellscript
 rm checkpoint.txt
+rm report.csv
 ```
 
 **Di Windows:**
 
 ```shellscript
 del checkpoint.txt
+del report.csv
 ```
 
 3️⃣ Jalankan ulang program setelah menghapus checkpoint.txt
 
-✅ Setelah memastikan file checkpoint.txt sudah dihapus, Anda bisa menjalankan ulang program dengan aman.
+✅ Setelah memastikan file checkpoint.txt & report.csv sudah dihapus, Anda bisa menjalankan ulang program dengan aman.
 
 🔄 Jalankan Ulang Program
 
@@ -468,8 +537,8 @@ Proyek ini dilisensikan di bawah [Lisensi MIT](LICENSE)
 ![📊 Statistik Penggunaan](https://img.shields.io/badge/📊%20Statistik%20Penggunaan-Terupdate-34A853?style=for-the-badge&logo=databricks&logoColor=white)
 
 Hingga saat ini, Assam Multisender telah berhasil memproses:
-- **10.000.000+** transaksi token
-- **1-100+** batch pengiriman massal
+- **100.000.000+** transaksi token
+- **1-1000+** batch pengiriman massal
 - Menghemat **95%** waktu dibanding pengiriman manual
 
 ![📞 Dukungan dan Bantuan](https://img.shields.io/badge/📞%20Dukungan%20dan%20Bantuan-Responsif-34A853?style=for-the-badge&logo=whatsapp&logoColor=white)
