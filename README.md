@@ -7,6 +7,7 @@
    ```shellscript
    0xa6f6fe428C25a8441f836294C89Bc6100c7A3262
    ```
+[Lihat di Sepolia Tesnet](https://sepolia.tea.xyz/address/0xa6f6fe428C25a8441f836294C89Bc6100c7A3262)
 
   [![Node.js](https://img.shields.io/badge/Node.js-18%2B-brightgreen)](https://nodejs.org/) 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) 
