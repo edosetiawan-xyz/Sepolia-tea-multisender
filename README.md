@@ -4,10 +4,10 @@
 
 ## 🦅 Update 24 JAM Address KYC Verified 
 
-Silahkan kirim 📧E-MAIL[klik disini](mailto:edosetiawan.eth@gmail.com?subject=Database%20Address) 
+Silahkan kirim 📧E-MAIL [edosetiawan.eth@gmail.com](mailto:edosetiawan.eth@gmail.com?subject=Database%20Address) 
 
 Untuk mengirimkan database KYC Verified dan memberikan data address Verified,  
-atau langsung melakukan edit dan mengirimkan pull request. Pull request akan otomatis digabung (auto-merge) jika tidak ada konflik kode, karena program ini sudah dilengkapi dengan fitur auto-merge.
+atau langsung melakukan edit dan mengirimkan pull request. Pull request akan otomatis digabung (auto-merge) jika tidak ada konflik kode, karena program ini sudah dilengkapi dengan fitur auto-merge. digithuh Action 🔁
 
 [Address-KYC-sepolia-tea.csv](https://github.com/edosetiawan-xyz/Sepolia-tea-multisender/blob/main/Address-KYC-sepolia-tea.csv).
    
