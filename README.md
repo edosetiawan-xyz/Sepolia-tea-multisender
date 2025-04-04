@@ -1,22 +1,65 @@
-<div align="center">
-  <img src="https://raw.githubusercontent.com/edosetiawan-xyz/Kontolodon-airdrop/6bc0e8ab4fff77dc40dd5212dbe865db2bf8228c/IMG_20250331_222230.jpg" alt="Assam Multisender Logo" width="500"/>
-</div>
+<p align="center">
+  <img src="https://github.com/edosetiawan-xyz/Kontolodon-airdrop/blob/6417e41548c9cc66b9d322d870bf914133e7b6c0/file_000000007ae051f7bb2da2293f90d9b7_conversation_id%3D67f044df-0e4c-8004-bafa-e82701e087ec%26message_id%3D1c42ab22-347e-4b49-9d63-2f96cb502103.PNG?raw=true" alt="Sepolia Tea Multisender Logo" width="400"/>
+</p>
 
 ## 🦅 Update 24 JAM Address KYC Verified 
 
 Silahkan kirim 📧E-MAIL [edosetiawan.eth@gmail.com](mailto:edosetiawan.eth@gmail.com?subject=Database%20Address) 
 
 Untuk mengirimkan database KYC Verified dan memberikan data address Verified,  
-atau langsung melakukan edit dan mengirimkan pull request. Pull request akan otomatis digabung (auto-merge) jika tidak ada konflik kode, karena program ini sudah dilengkapi dengan fitur auto-merge. digithuh Action 🔁
+atau langsung melakukan edit dan mengirimkan pull request. Pull request akan otomatis digabung (auto-merge) jika tidak ada konflik kode, karena program ini sudah dilengkapi dengan fitur auto-merge. digithub Action 🔁
 
-[Address-KYC-sepolia-tea.csv](https://github.com/edosetiawan-xyz/Sepolia-tea-multisender/blob/main/Address-KYC-sepolia-tea.csv).
-   
-   **Donate Tea Sepolia:** 
+Edit disini dan minta PL - [Address-KYC-sepolia-tea.csv](https://github.com/edosetiawan-xyz/Sepolia-tea-multisender/blob/main/Address-KYC-sepolia-tea.csv)
+
+**Donate Tea Sepolia:** 
    ```shellscript
    0xa6f6fe428C25a8441f836294C89Bc6100c7A3262
    ```
 [Lihat di Sepolia Tesnet](https://sepolia.tea.xyz/address/0xa6f6fe428C25a8441f836294C89Bc6100c7A3262)
 
+
+![🌱 Fitur Baru](https://img.shields.io/badge/🌱_Fitur_baru:_Integrasi_Generator_Wallet_Sepolia_Tea-brightgreen?style=for-the-badge)
+**Tingkatkan kemampuan airdrop dan multisender Anda dengan alat Generator Wallet TEA yang memungkinkan pembuatan ribuan atau jutaan wallet TEA secara instan!**
+
+![✨ Fitur Utama](https://img.shields.io/badge/✨_Fitur_Utama-Daftar_fitur_unggulan-blueviolet?style=for-the-badge)
+
+
+
+| Emoji | Fitur                                | Deskripsi                                                                 |
+|-------|--------------------------------------|---------------------------------------------------------------------------|
+| 🚀    | **Pembuatan wallet massal**          | Buat **100.000+ wallet** dalam hitungan detik                             |
+| 📊    | **Output TXT siap pakai**            | Sempurna untuk operasi **multisender** atau **airdrop**                   |
+| 🔄    | **Format kompatibel**                | Kompatibel langsung dengan **Sepolia-tea-multisender**                   |
+| 🔐    | **Keamanan Private Key & Address**   | Private key dan address **dipisahkan** untuk keamanan lebih baik          |
+| 📬    | **Notifikasi Telegram Backup**       | Backup otomatis **Private Keys** & **Phrase Keys** via **Telegram Bot**   |
+
+## 🛠️ Instalasi & Penggunaan
+
+```bash
+# Clone repository
+git clone https://github.com/edosetiawan-xyz/Generator-wallet-tea.git
+
+# Masuk ke direktori project
+cd Generator-wallet-tea
+
+# Instal dependensi
+npm install
+
+# Jalankan script
+npm start
+# ATAU
+node wallet.js
+```
+
+## 📚 Repository Sumber
+
+**[Dapatkan di sini](https://github.com/edosetiawan-xyz/Generator-wallet-tea.git)**
+
+---
+
+*Permudah operasi TEA Anda dengan solusi pembuatan wallet profesional kami* 💼
+   
+## Script Sepolia-tea-multisender dibagian bawah🔻🔻🔻
   [![Node.js](https://img.shields.io/badge/Node.js-18%2B-brightgreen)](https://nodejs.org/) 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) 
 [![Tea Network](https://img.shields.io/badge/Network-Sepolia%20Tea%20Testnet-orange)](https://tea.xyz)
@@ -549,9 +592,13 @@ Jika Anda mengalami masalah atau memiliki pertanyaan:
 - Hubungi kami melalui [Email](mailto:edosetiawan.eth@gmail.com)
 
 
-![Daftar Kontributor](https://img.shields.io/badge/📜%20Daftar%20Kontributor-181717?style=for-the-badge&logo=github&logoColor=white)  
-![edosetiawan-xyz](https://img.shields.io/badge/•%20edosetiawan--xyz-181717?style=for-the-badge&logo=github&logoColor=white)  
-![felicia-xyz](https://img.shields.io/badge/•%20felicia--xyz-181717?style=for-the-badge&logo=github&logoColor=white)
+## Kontributor
+
+| Nama                 | GitHub                                           | Peran                |
+|----------------------|--------------------------------------------------|----------------------|
+| edosetiawan-xyz      | [GitHub](https://github.com/edosetiawan-xyz)     | Pengembang Utama     |
+| felicia-xyz          | [GitHub](https://github.com/felicia-xyz)         | Desainer UI/UX       |
+| kakek-sugiono-sql    | [GitHub](https://github.com/kakek-sugiono-sql)   | Ahli Database & SQL  |
 
 
 
