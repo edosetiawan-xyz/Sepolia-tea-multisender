@@ -128,8 +128,178 @@ function refreshGradients() {
 
 refreshGradients()
 
-const RPC_URLS = process.env.RPC_URLS ? process.env.RPC_URLS.split(",") : [process.env.RPC_URL]
-let currentRpcIndex = 0
+// Enhanced RPC management
+class RPCManager {
+  constructor() {
+    // Get all RPC URLs from environment variables
+    this.rpcUrls = this.loadRpcUrls()
+    this.currentIndex = 0
+    this.lastUsedTime = new Map()
+    this.failureCount = new Map()
+    this.ROTATE_INTERVAL_MS = 5000
+    this.MAX_FAILURES = 3
+    this.COOLDOWN_PERIOD_MS = 60000 // 1 minute cooldown for failed RPCs
+
+    if (this.rpcUrls.length === 0) {
+      throw new Error("Tidak ada RPC_URL yang ditemukan. Pastikan .env diisi.")
+    }
+
+    // Initialize usage tracking
+    this.rpcUrls.forEach((url) => {
+      this.lastUsedTime.set(url, 0)
+      this.failureCount.set(url, 0)
+    })
+
+    console.log(getRandomGradient()(`🌐 Loaded ${this.rpcUrls.length} RPC endpoints`))
+  }
+
+  loadRpcUrls() {
+    // First try to load multiple RPCs from RPC_URLS
+    if (process.env.RPC_URLS) {
+      return process.env.RPC_URLS.split(",")
+        .map((url) => url.trim())
+        .filter(Boolean)
+    }
+
+    // Then try to load individual numbered RPCs (RPC_URL1, RPC_URL2, etc.)
+    const numberedRpcs = []
+    for (let i = 1; i <= 20; i++) {
+      const key = `RPC_URL${i}`
+      if (process.env[key]) {
+        numberedRpcs.push(process.env[key])
+      }
+    }
+
+    if (numberedRpcs.length > 0) {
+      return numberedRpcs
+    }
+
+    // Finally, fall back to a single RPC_URL
+    return process.env.RPC_URL ? [process.env.RPC_URL] : []
+  }
+
+  getNextRpc(forceRotate = false) {
+    if (this.rpcUrls.length === 1) {
+      return this.rpcUrls[0]
+    }
+
+    // If forced rotation or time to rotate
+    if (forceRotate || this.shouldRotateRpc()) {
+      this.rotateToNextHealthyRpc()
+    }
+
+    const selectedRpc = this.rpcUrls[this.currentIndex]
+    this.lastUsedTime.set(selectedRpc, Date.now())
+    return selectedRpc
+  }
+
+  shouldRotateRpc() {
+    const currentUrl = this.rpcUrls[this.currentIndex]
+    const lastUsed = this.lastUsedTime.get(currentUrl) || 0
+    return Date.now() - lastUsed > this.ROTATE_INTERVAL_MS
+  }
+
+  rotateToNextHealthyRpc() {
+    const startIndex = this.currentIndex
+    let nextIndex
+    let foundHealthy = false
+
+    // Try to find a healthy RPC
+    for (let i = 1; i <= this.rpcUrls.length; i++) {
+      nextIndex = (startIndex + i) % this.rpcUrls.length
+      const url = this.rpcUrls[nextIndex]
+      const failures = this.failureCount.get(url) || 0
+      const lastUsed = this.lastUsedTime.get(url) || 0
+
+      // Skip RPCs with too many recent failures
+      if (failures >= this.MAX_FAILURES && Date.now() - lastUsed < this.COOLDOWN_PERIOD_MS) {
+        continue
+      }
+
+      foundHealthy = true
+      break
+    }
+
+    // If we found a healthy RPC, use it
+    if (foundHealthy) {
+      this.currentIndex = nextIndex
+    } else {
+      // If all RPCs are in cooldown, use the one with the oldest failure
+      let oldestFailure = Date.now()
+      let oldestIndex = 0
+
+      for (let i = 0; i < this.rpcUrls.length; i++) {
+        const url = this.rpcUrls[i]
+        const lastUsed = this.lastUsedTime.get(url) || 0
+        if (lastUsed < oldestFailure) {
+          oldestFailure = lastUsed
+          oldestIndex = i
+        }
+      }
+
+      this.currentIndex = oldestIndex
+      // Reset failure count for this RPC since we're giving it another chance
+      this.failureCount.set(this.rpcUrls[this.currentIndex], 0)
+    }
+  }
+
+  reportRpcFailure(rpcUrl) {
+    const failures = (this.failureCount.get(rpcUrl) || 0) + 1
+    this.failureCount.set(rpcUrl, failures)
+
+    console.log(
+      getRandomGradient()(
+        `⚠️ RPC failure reported for ${rpcUrl.substring(0, 20)}... (${failures}/${this.MAX_FAILURES})`,
+      ),
+    )
+
+    if (failures >= this.MAX_FAILURES) {
+      console.log(getRandomGradient()(`🔄 Rotating away from problematic RPC endpoint`))
+      this.rotateToNextHealthyRpc()
+    }
+  }
+
+  reportRpcSuccess(rpcUrl) {
+    // Reset failure count on success
+    if (this.failureCount.get(rpcUrl) > 0) {
+      this.failureCount.set(rpcUrl, 0)
+    }
+  }
+
+  getProvider() {
+    try {
+      const url = this.getNextRpc()
+      return new ethers.JsonRpcProvider(url)
+    } catch (error) {
+      console.log(gradients.warningGradient(`❌ Error creating provider: ${error.message}`))
+      this.reportRpcFailure(this.rpcUrls[this.currentIndex])
+      throw new Error("Failed to initialize provider")
+    }
+  }
+
+  getRpcUrls() {
+    return [...this.rpcUrls]
+  }
+
+  getHealthStatus() {
+    return this.rpcUrls.map((url) => {
+      const failures = this.failureCount.get(url) || 0
+      const lastUsed = this.lastUsedTime.get(url) || 0
+      const shortUrl = url.length > 25 ? `${url.substring(0, 22)}...` : url
+
+      return {
+        url: shortUrl,
+        failures,
+        lastUsed: new Date(lastUsed).toLocaleTimeString(),
+        status: failures >= this.MAX_FAILURES ? "cooling down" : "healthy",
+      }
+    })
+  }
+}
+
+// Initialize RPC manager
+const rpcManager = new RPCManager()
+let provider = rpcManager.getProvider()
 
 const usedNonces = new Set()
 const pendingTransactions = new Map()
@@ -186,18 +356,16 @@ function logError(context, error, additionalInfo = {}) {
   console.log(gradients.warningGradient(`❌ Error in ${context}: ${error.message}`))
 }
 
-function getNextProvider() {
+// Improved provider management with automatic rotation
+function refreshProvider() {
   try {
-    const url = RPC_URLS[currentRpcIndex]
-    currentRpcIndex = (currentRpcIndex + 1) % RPC_URLS.length
-    return new ethers.JsonRpcProvider(url)
+    provider = rpcManager.getProvider()
+    return provider
   } catch (error) {
-    logError("Provider Setup", error)
-    throw new Error("Failed to initialize provider")
+    logError("Provider Refresh", error)
+    throw new Error("Failed to refresh provider")
   }
 }
-
-let provider = getNextProvider()
 
 const privateKeys = process.env.PRIVATE_KEYS ? process.env.PRIVATE_KEYS.split(",") : []
 if (privateKeys.length === 0) {
@@ -205,7 +373,18 @@ if (privateKeys.length === 0) {
   process.exit(1)
 }
 
-const wallets = privateKeys.map((key) => new ethers.Wallet(key, provider))
+// Create wallets with the current provider
+function getWallets() {
+  return privateKeys.map((key) => new ethers.Wallet(key, provider))
+}
+
+let wallets = getWallets()
+
+// Update wallets when provider changes
+function refreshWallets() {
+  wallets = getWallets()
+  return wallets
+}
 
 const tokens = {
   BTC: process.env.BTC_CONTRACT,
@@ -401,25 +580,102 @@ async function sendTelegramCSV(csvData, filename) {
   }
 }
 
-async function getValidNonce(wallet, forceRefresh = false) {
-  try {
-    const currentNonce = forceRefresh
-      ? await provider.getTransactionCount(wallet.address, "pending")
-      : await provider.getTransactionCount(wallet.address, "pending")
+// Improved nonce management
+class NonceManager {
+  constructor() {
+    this.nonceCache = new Map() // wallet address -> current nonce
+    this.usedNonces = new Set() // Set of "address:nonce" strings
+    this.pendingNonces = new Map() // wallet address -> Set of pending nonces
+    this.lastRefresh = new Map() // wallet address -> timestamp of last refresh
+    this.REFRESH_INTERVAL = 30000 // 30 seconds
+  }
 
-    let nonce = currentNonce
-    while (usedNonces.has(nonce)) {
-      nonce++
+  async getNextNonce(wallet, forceRefresh = false) {
+    try {
+      const address = wallet.address
+      const now = Date.now()
+      const lastRefreshTime = this.lastRefresh.get(address) || 0
+
+      // Check if we need to refresh the nonce from the network
+      if (forceRefresh || !this.nonceCache.has(address) || now - lastRefreshTime > this.REFRESH_INTERVAL) {
+        const networkNonce = await provider.getTransactionCount(address, "pending")
+        this.nonceCache.set(address, networkNonce)
+        this.lastRefresh.set(address, now)
+
+        // Initialize pending nonces set if needed
+        if (!this.pendingNonces.has(address)) {
+          this.pendingNonces.set(address, new Set())
+        }
+
+        console.log(
+          getRandomGradient()(`🔄 Refreshed nonce for ${address.substring(0, 8)}... from network: ${networkNonce}`),
+        )
+      }
+
+      // Get the current nonce from cache
+      let nonce = this.nonceCache.get(address)
+      const pendingSet = this.pendingNonces.get(address) || new Set()
+
+      // Find the next available nonce
+      while (pendingSet.has(nonce) || this.usedNonces.has(`${address}:${nonce}`)) {
+        nonce++
+      }
+
+      // Mark this nonce as pending
+      pendingSet.add(nonce)
+      this.pendingNonces.set(address, pendingSet)
+      this.usedNonces.add(`${address}:${nonce}`)
+
+      return nonce
+    } catch (error) {
+      logError("Get Next Nonce", error)
+
+      // Try with a refreshed provider
+      refreshProvider()
+      const newWallet = new ethers.Wallet(wallet.privateKey, provider)
+      return this.getNextNonce(newWallet, true)
+    }
+  }
+
+  confirmNonce(wallet, nonce) {
+    const address = wallet.address
+    const pendingSet = this.pendingNonces.get(address)
+
+    if (pendingSet) {
+      pendingSet.delete(nonce)
+
+      // Update the cached nonce if this was the lowest pending nonce
+      const currentCachedNonce = this.nonceCache.get(address) || 0
+      if (nonce === currentCachedNonce) {
+        this.nonceCache.set(address, nonce + 1)
+      }
+    }
+  }
+
+  releaseNonce(wallet, nonce) {
+    const address = wallet.address
+    const pendingSet = this.pendingNonces.get(address)
+
+    if (pendingSet) {
+      pendingSet.delete(nonce)
     }
 
-    return nonce
-  } catch (error) {
-    logError("Get Valid Nonce", error)
-    provider = getNextProvider()
-    const newWallet = new ethers.Wallet(wallet.privateKey, provider)
-    return await getValidNonce(newWallet, true)
+    this.usedNonces.delete(`${address}:${nonce}`)
+  }
+
+  resetNonceCache(wallet) {
+    const address = wallet.address
+    this.nonceCache.delete(address)
+    this.lastRefresh.delete(address)
+
+    // Clear pending nonces but keep used nonces for safety
+    if (this.pendingNonces.has(address)) {
+      this.pendingNonces.set(address, new Set())
+    }
   }
 }
+
+const nonceManager = new NonceManager()
 
 async function checkNetworkCongestion() {
   try {
@@ -448,6 +704,7 @@ async function checkNetworkCongestion() {
     }
   } catch (error) {
     logError("Check Network Congestion", error)
+    refreshProvider()
     return { congested: false, level: 0 }
   }
 }
@@ -489,7 +746,7 @@ async function calculateGasParameters(increasePercentage = 0) {
     }
   } catch (error) {
     logError("Calculate Gas Parameters", error)
-    provider = getNextProvider()
+    refreshProvider()
     return calculateGasParameters(increasePercentage)
   }
 }
@@ -511,6 +768,7 @@ async function checkStuckTransactions(wallet) {
           })
         } else {
           pendingTransactions.delete(txHash)
+          nonceManager.confirmNonce(wallet, txInfo.nonce)
         }
       } catch (error) {
         logError(`Check Tx ${txHash}`, error)
@@ -559,6 +817,7 @@ async function cancelStuckTransaction(wallet, stuckTx) {
     if (receipt && receipt.status === 1) {
       console.log(getRandomGradient()(`✅ Transaksi dengan nonce ${stuckTx.nonce} berhasil dibatalkan!`))
       pendingTransactions.delete(stuckTx.hash)
+      nonceManager.confirmNonce(wallet, stuckTx.nonce)
 
       const message =
         `🚫 Transaksi Stuck Dibatalkan
@@ -594,6 +853,183 @@ async function estimateGasLimit(tokenContract, recipient, amountInWei) {
   }
 }
 
+// Function to send native TEA token
+async function sendNativeToken(
+  wallet,
+  recipient,
+  amount,
+  currentIndex,
+  totalTx,
+  suggestedNonce = null,
+  maxRetries = 5,
+) {
+  let retries = 0
+  const baseDelay = 1000
+  let nonce = suggestedNonce !== null ? suggestedNonce : await nonceManager.getNextNonce(wallet)
+  let lastError = null
+
+  await checkStuckTransactions(wallet)
+
+  const gasIncreasePercentages = [0, 10, 20, 30, 40]
+
+  while (retries < maxRetries) {
+    try {
+      const amountInWei = ethers.parseUnits(amount.toString(), 18)
+
+      try {
+        await provider.getNetwork()
+      } catch (networkError) {
+        logError("Network Check", networkError, { attempt: retries + 1 })
+        refreshProvider()
+        wallet = new ethers.Wallet(wallet.privateKey, provider)
+        throw new Error("Network check failed, switching provider")
+      }
+
+      console.log(getRandomGradient()(`🚀 Mengirim ${amount} TEA ke ${recipient}`))
+      console.log(
+        getRandomGradient()("• felicia ") +
+          getRandomGradient()(`(${currentIndex + 1}/${totalTx}) `) +
+          getRandomGradient()("edosetiawan.eth"),
+      )
+
+      console.log(getRandomGradient()(`🔢 Menggunakan nonce: ${nonce}`))
+
+      const increasePercentage = gasIncreasePercentages[Math.min(retries, gasIncreasePercentages.length - 1)]
+      const gasParams = await calculateGasParameters(increasePercentage)
+
+      // For native transfers, we use a fixed gas limit
+      const gasLimit = 21000n
+
+      if (gasParams.supportsEIP1559) {
+        console.log(
+          getRandomGradient()(
+            `⛽ EIP-1559: maxPriorityFee: ${ethers.formatUnits(gasParams.maxPriorityFeePerGas, "gwei")} Gwei, ` +
+              `maxFee: ${ethers.formatUnits(gasParams.maxFeePerGas, "gwei")} Gwei ` +
+              `(${increasePercentage > 0 ? `+${increasePercentage}%` : "normal"})`,
+          ),
+        )
+      } else {
+        console.log(
+          getRandomGradient()(
+            `⛽ Gas Price: ${ethers.formatUnits(gasParams.gasPrice, "gwei")} Gwei ` +
+              `(${increasePercentage > 0 ? `+${increasePercentage}%` : "normal"})`,
+          ),
+        )
+      }
+
+      const txOptions = {
+        to: recipient,
+        value: amountInWei,
+        nonce,
+        gasLimit,
+        ...(gasParams.supportsEIP1559
+          ? {
+              type: 2,
+              maxPriorityFeePerGas: gasParams.maxPriorityFeePerGas,
+              maxFeePerGas: gasParams.maxFeePerGas,
+            }
+          : {
+              gasPrice: gasParams.gasPrice,
+            }),
+      }
+
+      const tx = await wallet.sendTransaction(txOptions)
+
+      console.log(createRandomGradient()(`✅ Transaksi dikirim: ${tx.hash}`))
+
+      pendingTransactions.set(tx.hash, {
+        timestamp: Date.now(),
+        nonce,
+        recipient,
+      })
+
+      const gasPriceValue = gasParams.supportsEIP1559
+        ? ethers.formatUnits(gasParams.maxPriorityFeePerGas, "gwei")
+        : ethers.formatUnits(gasParams.gasPrice, "gwei")
+
+      const gasUsedValue = ethers.formatUnits(
+        gasParams.supportsEIP1559
+          ? BigInt(gasLimit) * gasParams.maxFeePerGas
+          : BigInt(gasLimit) * (gasParams.gasPrice || BigInt(1)),
+        "ether",
+      )
+
+      const teaBalance = await checkTeaBalance(wallet.address)
+      const networkCongestion = (await checkNetworkCongestion()).level
+
+      await sendTelegramMessage({
+        wallet: wallet.address,
+        amount: amount.toString(),
+        token: "TEA",
+        recipient: recipient,
+        txHash: tx.hash,
+        gasPrice: gasPriceValue,
+        gasUsed: gasUsedValue,
+        remainingBalance: teaBalance,
+        networkCongestion: networkCongestion,
+        currentIndex: (currentIndex + 1).toString(),
+        totalTx: totalTx.toString(),
+      })
+
+      // Wait for receipt to confirm transaction
+      const receipt = await tx.wait()
+
+      if (receipt && receipt.status === 1) {
+        pendingTransactions.delete(tx.hash)
+        nonceManager.confirmNonce(wallet, nonce)
+        return "SUKSES"
+      } else {
+        throw new Error("Transaction failed")
+      }
+    } catch (err) {
+      lastError = err
+      logError("Transaction", err)
+
+      if (err.message.includes("insufficient funds")) {
+        console.log(getRandomGradient()("❌ Dana tidak mencukupi! Membatalkan transaksi."))
+        nonceManager.releaseNonce(wallet, nonce)
+        return "GAGAL"
+      }
+
+      if (
+        err.message.includes("nonce too low") ||
+        err.message.includes("already known") ||
+        err.message.includes("replacement transaction underpriced") ||
+        err.message.includes("nonce has already been used")
+      ) {
+        console.log(getRandomGradient()("⚠️ Nonce conflict detected. Getting new nonce..."))
+        nonceManager.releaseNonce(wallet, nonce)
+        nonce = await nonceManager.getNextNonce(wallet, true)
+        console.log(getRandomGradient()(`🔢 Nonce baru: ${nonce}`))
+      } else if (
+        err.message.includes("gas price too low") ||
+        err.message.includes("max fee per gas less than block base fee") ||
+        err.message.includes("transaction underpriced") ||
+        err.message.includes("fee cap less than block base fee")
+      ) {
+        console.log(getRandomGradient()("⚠️ Gas price terlalu rendah. Meningkatkan gas price..."))
+      } else {
+        nonceManager.releaseNonce(wallet, nonce)
+      }
+
+      retries++
+      if (retries < maxRetries) {
+        const waitTime = Math.min(baseDelay * Math.pow(2, retries), 30000)
+        console.log(
+          getRandomGradient()(
+            `⏳ Menunggu ${waitTime / 1000} detik sebelum mencoba lagi (Percobaan ${retries + 1}/${maxRetries})...`,
+          ),
+        )
+        await new Promise((resolve) => setTimeout(resolve, waitTime))
+      }
+    }
+  }
+
+  console.log(getRandomGradient()(`❌ Gagal setelah ${maxRetries} percobaan: ${lastError?.message || "Unknown error"}`))
+  nonceManager.releaseNonce(wallet, nonce)
+  return "GAGAL"
+}
+
 async function sendTransactionWithRetry(
   wallet,
   tokenAddress,
@@ -605,9 +1041,14 @@ async function sendTransactionWithRetry(
   suggestedNonce = null,
   maxRetries = 5,
 ) {
+  // For native token transfers, use the dedicated function
+  if (tokenAddress === "native") {
+    return sendNativeToken(wallet, recipient, amount, currentIndex, totalTx, suggestedNonce, maxRetries)
+  }
+
   let retries = 0
   const baseDelay = 1000
-  let nonce = suggestedNonce !== null ? suggestedNonce : await getValidNonce(wallet)
+  let nonce = suggestedNonce !== null ? suggestedNonce : await nonceManager.getNextNonce(wallet)
   let lastError = null
 
   await checkStuckTransactions(wallet)
@@ -627,7 +1068,7 @@ async function sendTransactionWithRetry(
         await provider.getNetwork()
       } catch (networkError) {
         logError("Network Check", networkError, { attempt: retries + 1 })
-        provider = getNextProvider()
+        refreshProvider()
         wallet = new ethers.Wallet(wallet.privateKey, provider)
         throw new Error("Network check failed, switching provider")
       }
@@ -639,15 +1080,7 @@ async function sendTransactionWithRetry(
           getRandomGradient()("edosetiawan.eth"),
       )
 
-      if (usedNonces.has(nonce)) {
-        console.log(
-          getRandomGradient()(`⚠️ Nonce ${nonce} sudah digunakan dalam session ini, mendapatkan nonce baru...`),
-        )
-        nonce = await getValidNonce(wallet, true)
-        console.log(getRandomGradient()(`🔢 Nonce baru: ${nonce}`))
-      }
-
-      usedNonces.add(nonce)
+      console.log(getRandomGradient()(`🔢 Menggunakan nonce: ${nonce}`))
 
       const increasePercentage = gasIncreasePercentages[Math.min(retries, gasIncreasePercentages.length - 1)]
       const gasParams = await calculateGasParameters(increasePercentage)
@@ -671,7 +1104,7 @@ async function sendTransactionWithRetry(
         )
       }
 
-      console.log(getRandomGradient()(`🔢 Menggunakan nonce: ${nonce}, Gas Limit: ${gasLimit}`))
+      console.log(getRandomGradient()(`🔢 Nonce: ${nonce}, Gas Limit: ${gasLimit}`))
 
       const txOptions = {
         nonce,
@@ -729,16 +1162,23 @@ async function sendTransactionWithRetry(
         totalTx: totalTx.toString(),
       })
 
-      pendingTransactions.delete(tx.hash)
+      // Wait for receipt to confirm transaction
+      const receipt = await tx.wait()
 
-      return "SUKSES"
+      if (receipt && receipt.status === 1) {
+        pendingTransactions.delete(tx.hash)
+        nonceManager.confirmNonce(wallet, nonce)
+        return "SUKSES"
+      } else {
+        throw new Error("Transaction failed")
+      }
     } catch (err) {
       lastError = err
       logError("Transaction", err)
 
       if (err.message.includes("insufficient funds")) {
         console.log(getRandomGradient()("❌ Dana tidak mencukupi! Membatalkan transaksi."))
-        usedNonces.delete(nonce)
+        nonceManager.releaseNonce(wallet, nonce)
         return "GAGAL"
       }
 
@@ -749,8 +1189,8 @@ async function sendTransactionWithRetry(
         err.message.includes("nonce has already been used")
       ) {
         console.log(getRandomGradient()("⚠️ Nonce conflict detected. Getting new nonce..."))
-        usedNonces.delete(nonce)
-        nonce = await getValidNonce(wallet, true)
+        nonceManager.releaseNonce(wallet, nonce)
+        nonce = await nonceManager.getNextNonce(wallet, true)
         console.log(getRandomGradient()(`🔢 Nonce baru: ${nonce}`))
       } else if (
         err.message.includes("gas price too low") ||
@@ -760,7 +1200,7 @@ async function sendTransactionWithRetry(
       ) {
         console.log(getRandomGradient()("⚠️ Gas price terlalu rendah. Meningkatkan gas price..."))
       } else {
-        usedNonces.delete(nonce)
+        nonceManager.releaseNonce(wallet, nonce)
       }
 
       retries++
@@ -777,7 +1217,7 @@ async function sendTransactionWithRetry(
   }
 
   console.log(getRandomGradient()(`❌ Gagal setelah ${maxRetries} percobaan: ${lastError?.message || "Unknown error"}`))
-  usedNonces.delete(nonce)
+  nonceManager.releaseNonce(wallet, nonce)
   return "GAGAL"
 }
 
@@ -1278,6 +1718,7 @@ async function checkTeaBalance(address) {
     return ethers.formatEther(balance)
   } catch (error) {
     logError("Check TEA Balance", error)
+    refreshProvider()
     return "Error"
   }
 }
@@ -1308,6 +1749,7 @@ async function checkTokenBalance(tokenAddress, walletAddress) {
     }
   } catch (error) {
     logError("Check Token Balance", error)
+    refreshProvider()
     return {
       balance: "Error",
       symbol: "Unknown",
@@ -1513,6 +1955,7 @@ async function cancelNonce() {
         if (receipt && receipt.status === 1) {
           console.log(getRandomGradient()(`✅ Transaksi dengan nonce ${nonce} berhasil dibatalkan!`))
           successCount++
+          nonceManager.confirmNonce(selectedWallet, nonce)
 
           const message =
             `🚫 Nonce ${nonce} Dibatalkan\n` +
@@ -1850,35 +2293,136 @@ async function processTokenTransfer(tokenSymbol, tokenAddress) {
     const checkpoint = loadCheckpoint()
 
     // Dapatkan nonce awal
-    let nonce = await getValidNonce(wallet, true)
+    let nonce = await nonceManager.getNextNonce(wallet, true)
     console.log(getRandomGradient()(`🔢 Nonce awal: ${nonce}`))
 
     // Inisialisasi daftar transaksi yang berhasil dan gagal untuk session ini
     const sessionSuccessful = new Set()
     const sessionFailed = new Set()
 
-    for (let i = checkpoint; i < totalTx; i += batchSize) {
-      const batch = processedData.slice(i, i + batchSize)
-      const promises = batch.map(async (row, index) => {
+    // Process transactions based on the selected delay mode
+    if (delayChoice === 0) {
+      // Batch mode with Promise.all
+      for (let i = checkpoint; i < totalTx; i += batchSize) {
+        const batch = processedData.slice(i, i + batchSize)
+        console.log(
+          getRandomGradient()(
+            `\n🚀 Processing batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(totalTx / batchSize)}`,
+          ),
+        )
+
+        // Create an array of promises for the batch
+        const promises = batch.map(async (row, index) => {
+          const [address, amount] = row.split(",").map((x) => x.trim())
+
+          if (!ethers.isAddress(address)) {
+            console.log(getRandomGradient()(`⚠️ Invalid address: ${address}`))
+            reportData += `${address},${amount},invalid_address\n`
+            return
+          }
+
+          if (sessionSuccessful.has(address)) {
+            console.log(getRandomGradient()(`⚠️ Transaksi ke ${address} sudah sukses dalam session ini. Dilewati.`))
+            return
+          }
+
+          if (sessionFailed.has(address)) {
+            console.log(getRandomGradient()(`⚠️ Transaksi ke ${address} sudah gagal dalam session ini. Dilewati.`))
+            return
+          }
+
+          const txNonce = nonce + index
+
+          const result = await sendTransactionWithRetry(
+            wallet,
+            tokenAddress,
+            address,
+            amount,
+            tokenSymbol,
+            i + index,
+            totalTx,
+            txNonce,
+            retryCount,
+          )
+
+          if (result === "SUKSES") {
+            successCount++
+            sessionSuccessful.add(address)
+            reportData += `${address},${amount},sukses\n`
+          } else {
+            failCount++
+            sessionFailed.add(address)
+            reportData += `${address},${amount},gagal\n`
+          }
+        })
+
+        // Execute all promises in the batch concurrently
+        await Promise.all(promises)
+
+        // Update nonce for the next batch
+        nonce += batch.length
+
+        // Get fresh nonce from the network to ensure accuracy
+        if (i + batchSize < totalTx) {
+          nonce = await nonceManager.getNextNonce(wallet, true)
+          console.log(getRandomGradient()(`🔢 Nonce terbaru: ${nonce}`))
+        }
+
+        // Save checkpoint after each batch
+        saveCheckpoint(i + batchSize)
+        console.log(
+          getRandomGradient()(
+            `🚀 Progress: ${Math.min(i + batchSize, totalTx)}/${totalTx} (${Math.round(
+              (Math.min(i + batchSize, totalTx) / totalTx) * 100,
+            )}%)`,
+          ),
+        )
+
+        // Check balances periodically
+        if ((i + batchSize) % 10 === 0 || i + batchSize >= totalTx) {
+          const updatedTeaBalance = await checkTeaBalance(wallet.address)
+          console.log(getRandomGradient()(`💰 Saldo $TEA terbaru: ${updatedTeaBalance} TEA`))
+
+          // Check network conditions
+          const feeData = await provider.getFeeData()
+          if (feeData.maxFeePerGas) {
+            console.log(
+              getRandomGradient()(
+                `⛽ Base Fee: ${ethers.formatUnits(feeData.lastBaseFeePerGas || 0n, "gwei")} Gwei, ` +
+                  `Priority Fee: ${ethers.formatUnits(feeData.maxPriorityFeePerGas || 0n, "gwei")} Gwei`,
+              ),
+            )
+          } else {
+            console.log(
+              getRandomGradient()(`⛽ Gas Price saat ini: ${ethers.formatUnits(feeData.gasPrice, "gwei")} Gwei`),
+            )
+          }
+        }
+      }
+    } else {
+      // Sequential mode with delays
+      for (let i = checkpoint; i < totalTx; i++) {
+        const row = processedData[i]
         const [address, amount] = row.split(",").map((x) => x.trim())
 
         if (!ethers.isAddress(address)) {
+          console.log(getRandomGradient()(`⚠️ Invalid address: ${address}`))
           reportData += `${address},${amount},invalid_address\n`
-          return
+          continue
         }
 
         if (sessionSuccessful.has(address)) {
           console.log(getRandomGradient()(`⚠️ Transaksi ke ${address} sudah sukses dalam session ini. Dilewati.`))
-          return
+          continue
         }
+
         if (sessionFailed.has(address)) {
           console.log(getRandomGradient()(`⚠️ Transaksi ke ${address} sudah gagal dalam session ini. Dilewati.`))
-          return
+          continue
         }
 
-        const txNonce = nonce + index
-
-        await checkStuckTransactions(wallet)
+        // Get fresh nonce for each transaction
+        nonce = await nonceManager.getNextNonce(wallet, false)
 
         const result = await sendTransactionWithRetry(
           wallet,
@@ -1886,9 +2430,9 @@ async function processTokenTransfer(tokenSymbol, tokenAddress) {
           address,
           amount,
           tokenSymbol,
-          i + index,
+          i,
           totalTx,
-          txNonce,
+          nonce,
           retryCount,
         )
 
@@ -1901,56 +2445,46 @@ async function processTokenTransfer(tokenSymbol, tokenAddress) {
           sessionFailed.add(address)
           reportData += `${address},${amount},gagal\n`
         }
-      })
 
-      await Promise.all(promises)
-      nonce += batch.length
+        // Save checkpoint after each transaction
+        saveCheckpoint(i + 1)
+        console.log(getRandomGradient()(`🚀 Progress: ${i + 1}/${totalTx} (${Math.round(((i + 1) / totalTx) * 100)}%)`))
 
-      if (i + batchSize < totalTx) {
-        nonce = await getValidNonce(wallet, true)
-        console.log(getRandomGradient()(`🔢 Nonce terbaru: ${nonce}`))
-      }
-
-      saveCheckpoint(i + batchSize)
-      console.log(
-        getRandomGradient()(
-          `🚀 Progress: ${Math.min(i + batchSize, totalTx)}/${totalTx} (${Math.round(
-            (Math.min(i + batchSize, totalTx) / totalTx) * 100,
-          )}%)`,
-        ),
-      )
-
-      if (i < totalTx - batchSize && delayChoice !== 0) {
-        await applyDelay(delayChoice, delayTime, randomDelayRange, i, totalTx)
-      }
-
-      if ((i + 1) % 10 === 0) {
-        const updatedTeaBalance = await checkTeaBalance(wallet.address)
-        console.log(getRandomGradient()(`💰 Saldo $TEA terbaru: ${updatedTeaBalance} TEA`))
-      }
-
-      if ((i + 1) % 5 === 0) {
-        const feeData = await provider.getFeeData()
-        if (feeData.maxFeePerGas) {
-          console.log(
-            getRandomGradient()(
-              `⛽ Base Fee: ${ethers.formatUnits(feeData.lastBaseFeePerGas || 0n, "gwei")} Gwei, ` +
-                `Priority Fee: ${ethers.formatUnits(feeData.maxPriorityFeePerGas || 0n, "gwei")} Gwei`,
-            ),
-          )
-        } else {
-          console.log(
-            getRandomGradient()(`⛽ Gas Price saat ini: ${ethers.formatUnits(feeData.gasPrice, "gwei")} Gwei`),
-          )
+        // Apply delay between transactions
+        if (i < totalTx - 1) {
+          await applyDelay(delayChoice, delayTime, randomDelayRange, i, totalTx)
         }
 
-        const congestion = await checkNetworkCongestion()
-        if (congestion.congested) {
-          console.log(
-            getRandomGradient()(
-              `⚠️ Jaringan sedang padat (level ${congestion.level}), transaksi mungkin membutuhkan gas lebih tinggi`,
-            ),
-          )
+        // Check balances periodically
+        if ((i + 1) % 10 === 0 || i + 1 >= totalTx) {
+          const updatedTeaBalance = await checkTeaBalance(wallet.address)
+          console.log(getRandomGradient()(`💰 Saldo $TEA terbaru: ${updatedTeaBalance} TEA`))
+        }
+
+        // Check network conditions periodically
+        if ((i + 1) % 5 === 0) {
+          const feeData = await provider.getFeeData()
+          if (feeData.maxFeePerGas) {
+            console.log(
+              getRandomGradient()(
+                `⛽ Base Fee: ${ethers.formatUnits(feeData.lastBaseFeePerGas || 0n, "gwei")} Gwei, ` +
+                  `Priority Fee: ${ethers.formatUnits(feeData.maxPriorityFeePerGas || 0n, "gwei")} Gwei`,
+              ),
+            )
+          } else {
+            console.log(
+              getRandomGradient()(`⛽ Gas Price saat ini: ${ethers.formatUnits(feeData.gasPrice, "gwei")} Gwei`),
+            )
+          }
+
+          const congestion = await checkNetworkCongestion()
+          if (congestion.congested) {
+            console.log(
+              getRandomGradient()(
+                `⚠️ Jaringan sedang padat (level ${congestion.level}), transaksi mungkin membutuhkan gas lebih tinggi`,
+              ),
+            )
+          }
         }
       }
     }
@@ -2010,13 +2544,26 @@ async function main() {
       console.log(getRandomGradient()("║ [1] Bitcoin - BTC                    ║"))
       console.log(getRandomGradient()("║ [2] MeowTea Token - MTN              ║"))
       console.log(getRandomGradient()("║ [3] TeaDogs INU - TGS                ║"))
-      console.log(getRandomGradient()("║ [4] Kirim Token Manual               ║"))
+      console.log(getRandomGradient()("║ [4] Custom Token Transfer - ERC20    ║"))
       console.log(getRandomGradient()("║ [5] Cancel Nonce                     ║"))
       console.log(getRandomGradient()("║ [6] Cek Saldo Token                  ║"))
+      console.log(getRandomGradient()("║ [7] Transfer Native TEA              ║"))
       console.log(getRandomGradient()("║ [0] Keluar                           ║"))
       console.log(gradients.rainbowGradient("╚══════════════════════════════════════╝\n"))
 
-      const input = readline.question(getRandomGradient()("\n➤ Pilih opsi (0-6): "))
+      // Display RPC health status
+      console.log(getRandomGradient()("🌐 RPC Status:"))
+      const rpcStatus = rpcManager.getHealthStatus()
+      rpcStatus.forEach((status, index) => {
+        const statusColor =
+          status.status === "healthy"
+            ? getRandomGradient()(`[${index + 1}] ${status.url}: ✅ ${status.status}`)
+            : gradients.warningGradient(`[${index + 1}] ${status.url}: ⚠️ ${status.status}`)
+        console.log(statusColor)
+      })
+      console.log("")
+
+      const input = readline.question(getRandomGradient()("\n➤ Pilih opsi (0-7): "))
       const choice = Number.parseInt(input)
 
       if (input.trim() === "0") {
@@ -2026,7 +2573,12 @@ async function main() {
 
       let tokenSymbol, tokenAddress
 
-      if (choice === 6) {
+      if (choice === 7) {
+        // Native TEA token transfer
+        tokenSymbol = "TEA"
+        tokenAddress = "native"
+        await processTokenTransfer(tokenSymbol, tokenAddress)
+      } else if (choice === 6) {
         await checkTokenBalances()
       } else if (choice === 5) {
         await cancelNonce()
@@ -2054,34 +2606,18 @@ async function main() {
 // Display ending message with different gradient colors
 function displayEndingMessage() {
   console.log(getRandomGradient()("✨✨✨ Terima kasih telah menggunakan script ini! ✨✨✨"))
-  console.log(
-    getRandomGradient()(
-      "==================================================================================",
-    ),
-  )
+  console.log(getRandomGradient()("=================================================================================="))
   console.log(getRandomGradient()("        ⚠️  PERINGATAN HAK CIPTA ⚠️        "))
-  console.log(
-    getRandomGradient()(
-      "==================================================================================",
-    ),
-  )
+  console.log(getRandomGradient()("=================================================================================="))
   console.log(
     getRandomGradient()("DILARANG KERAS ") +
       getRandomGradient()("menyalin, mendistribusikan, atau menggunakan kode dalam script ini tanpa izin dari ") +
       getRandomGradient()("edosetiawan.eth") +
       getRandomGradient()(" Segala bentuk duplikasi tanpa izin akan dianggap sebagai pelanggaran hak cipta"),
   )
-  console.log(
-    getRandomGradient()(
-      "==================================================================================",
-    ),
-  )
+  console.log(getRandomGradient()("=================================================================================="))
   console.log(getRandomGradient()("        ✅ PENGGUNAAN RESMI ✅        "))
-  console.log(
-    getRandomGradient()(
-      "==================================================================================",
-    ),
-  )
+  console.log(getRandomGradient()("=================================================================================="))
   console.log(
     getRandomGradient()(
       "Script ini hanya boleh digunakan oleh pemilik resmi yang telah diberikan akses. Jika Anda bukan pengguna resmi, segera hubungi ",
