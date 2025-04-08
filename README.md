@@ -11,11 +11,7 @@ atau langsung melakukan edit dan mengirimkan pull request. Pull request akan oto
 
 Edit disini dan minta PL - [Address-KYC-sepolia-tea.csv](https://github.com/edosetiawan-xyz/Sepolia-tea-multisender/blob/main/Address-KYC-sepolia-tea.csv)
 
-**Donate Tea Sepolia:** 
-   ```shellscript
-   0xa6f6fe428C25a8441f836294C89Bc6100c7A3262
-   ```
-[Lihat di Sepolia Tesnet](https://sepolia.tea.xyz/address/0xa6f6fe428C25a8441f836294C89Bc6100c7A3262)
+
 
 
 ![🌱 Fitur Baru](https://img.shields.io/badge/🌱_Fitur_baru:_Integrasi_Generator_Wallet_Sepolia_Tea-brightgreen?style=for-the-badge)
@@ -360,7 +356,7 @@ atau `bisa langsung beli dibawah ini`
 3. Bot akan menampilkan informasi akun kamu, termasuk `chat ID`
 
 4. Contoh tampilan notifikasi ditelegram:
-![Deskripsi Gambar](https://raw.githubusercontent.com/edosetiawan-xyz/Kontolodon-airdrop/25192b5bffa36f48026c9cf339c95e669dd0ef48/Screenshot_20250403_015617.jpg)
+![Deskripsi Gambar](https://github.com/edosetiawan-xyz/Kontolodon-airdrop/blob/8babff59f624f44cfd724a5b786967f9a6840aaa/Screenshot_20250408_204503.jpg?raw=true)
 5. Contoh Tampilan Menu
 
 ![Screenshot 2](https://raw.githubusercontent.com/edosetiawan-xyz/Kontolodon-airdrop/1d50cf168f43d0330059d41ba8e41b63c95f831a/Screenshot_20250403_020231.jpg)
